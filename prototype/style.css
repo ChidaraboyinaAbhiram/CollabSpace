@@ -1,0 +1,492 @@
+/* ==========================================================================
+   1. Design Tokens & Base Resets
+   ========================================================================== */
+:root {
+    --bg-main: #f8f9fa;
+    --bg-card: #ffffff;
+    --border-color: #e9ecef;
+    --text-main: #212529;
+    --text-muted: #6c757d;
+    --primary: #4f46e5;
+    --primary-light: #eeebff;
+    --primary-hover: #4338ca;
+    --success: #10b981;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.02);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    overflow: hidden; /* App layout architecture standard */
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ==========================================================================
+   2. Top Navigation Bar
+   ========================================================================== */
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    background-color: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0 24px;
+    z-index: 10;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--primary);
+}
+
+.logo-icon {
+    font-size: 1.3rem;
+}
+
+.search-container {
+    position: relative;
+    width: 450px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.search-container input {
+    width: 100%;
+    padding: 10px 14px 10px 40px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-main);
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: 0.9rem;
+    transition: var(--transition-smooth);
+}
+
+.search-container input:focus {
+    outline: none;
+    background-color: var(--bg-card);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-smooth);
+}
+
+.icon-btn:hover {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+}
+
+.profile-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: var(--primary);
+    color: white;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    border: 2px solid white;
+    box-shadow: var(--shadow-sm);
+}
+
+/* ==========================================================================
+   3. Main App Layout Framework (Grid Architecture)
+   ========================================================================== */
+.app-container {
+    display: grid;
+    grid-template-columns: 260px 1fr 320px;
+    height: calc(100vh - 64px);
+    width: 100%;
+}
+
+/* Responsive breakdowns for compact viewports */
+@media (max-width: 1024px) {
+    .app-container {
+        grid-template-columns: 220px 1fr;
+    }
+    .right-panel {
+        display: none; /* Auto-tuck collaboration layer on small screens */
+    }
+}
+
+/* ==========================================================================
+   4. Sidebar (Left Panel)
+   ========================================================================== */
+.sidebar {
+    background-color: var(--bg-card);
+    border-right: 1px solid var(--border-color);
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: var(--transition-smooth);
+    box-shadow: 0 2px 4px rgba(79, 70, 229, 0.15);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+.sidebar-section h3 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    padding-left: 8px;
+}
+
+.doc-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.doc-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text-main);
+    font-weight: 500;
+    transition: var(--transition-smooth);
+}
+
+.doc-item i {
+    color: var(--text-muted);
+    transition: var(--transition-smooth);
+}
+
+.doc-item:hover {
+    background-color: var(--bg-main);
+}
+
+.doc-item.active {
+    background-color: var(--primary-light);
+    color: var(--primary);
+}
+
+.doc-item.active i {
+    color: var(--primary);
+}
+
+/* ==========================================================================
+   5. Main Document Editor Workspace
+   ========================================================================== */
+.editor-area {
+    background-color: var(--bg-card);
+    display: flex;
+    flex-direction: column;
+    padding: 32px 48px;
+    overflow-y: auto;
+}
+
+.editor-header {
+    margin-bottom: 24px;
+}
+
+.doc-title {
+    width: 100%;
+    border: none;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-main);
+    outline: none;
+    padding: 4px 0;
+    margin-bottom: 8px;
+    font-family: inherit;
+}
+
+.autosave-container {
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+}
+
+.status-saved {
+    color: var(--success);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-saving {
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.editor-body {
+    flex-grow: 1;
+    display: flex;
+    margin-bottom: 16px;
+}
+
+.editor-body textarea {
+    width: 100%;
+    height: 100%;
+    border: none;
+    resize: none;
+    font-family: inherit;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--text-main);
+    outline: none;
+}
+
+.editor-footer {
+    display: flex;
+    gap: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* ==========================================================================
+   6. Right Side Panel (SaaS Cards & Utilities)
+   ========================================================================== */
+.right-panel {
+    border-left: 1px solid var(--border-color);
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    overflow-y: auto;
+}
+
+.panel-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.card-header h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.text-primary { color: var(--primary); }
+
+.badge {
+    font-size: 0.75rem;
+    background-color: #ecfdf5;
+    color: var(--success);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+/* Collaborators Component Styles */
+.collaborators-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.collaborator-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: white;
+    position: relative;
+}
+
+/* Real-time active connection indicator */
+.avatar::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 8px;
+    height: 8px;
+    background-color: var(--success);
+    border: 2px solid white;
+    border-radius: 50%;
+}
+
+.collab-name {
+    font-size: 0.88rem;
+    font-weight: 500;
+}
+
+/* Dynamic avatar branding presets */
+.avatar-1 { background-color: #3b82f6; }
+.avatar-2 { background-color: #ec4899; }
+.avatar-3 { background-color: #f59e0b; }
+.avatar-4 { background-color: #8b5cf6; }
+
+/* Comments Component Styles */
+.comments-card {
+    flex-grow: 1;
+    max-height: 400px;
+}
+
+.comments-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 14px;
+    padding-right: 4px;
+}
+
+.comment-bubble {
+    background-color: var(--bg-main);
+    padding: 12px;
+    border-radius: var(--radius-md);
+    border-top-left-radius: 2px;
+}
+
+.comment-author {
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.comment-text {
+    font-size: 0.85rem;
+    color: #4a5568;
+    line-height: 1.4;
+}
+
+.comment-input-form {
+    display: flex;
+    gap: 8px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 12px;
+}
+
+.comment-input-form input {
+    flex-grow: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.85rem;
+}
+
+.comment-input-form input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.btn-send {
+    background-color: var(--primary-light);
+    color: var(--primary);
+    border: none;
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-smooth);
+}
+
+.btn-send:hover {
+    background-color: var(--primary);
+    color: white;
+}
