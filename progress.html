@@ -267,28 +267,6 @@
       background: var(--success);
     }
 
-    .task-item.in-progress .task-checkbox {
-      border-color: var(--primary-light);
-      background: var(--primary-glow);
-      position: relative;
-    }
-
-    .task-item.in-progress .task-checkbox::after {
-      content: '';
-      position: absolute;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--primary-light);
-      animation: pulse 1.5s infinite;
-    }
-
-    @keyframes pulse {
-      0% { transform: scale(0.8); opacity: 0.5; }
-      50% { transform: scale(1.2); opacity: 1; }
-      100% { transform: scale(0.8); opacity: 0.5; }
-    }
-
     .task-checkbox svg {
       width: 12px;
       height: 12px;
@@ -488,7 +466,6 @@
       border-left: 2px solid var(--primary);
     }
 
-    /* Textbox Labels and Textareas */
     .textbox-label {
       font-size: 0.9rem;
       font-weight: 600;
@@ -583,10 +560,10 @@
       <div class="badge-container">
         <div class="badge badge-primary">
           <span class="pulse-indicator"></span>
-          <span>Sprint 1: Authentication</span>
+          <span>Sprint 2: Dashboard</span>
         </div>
         <div class="badge badge-success">
-          <span>Sprint 0 Complete</span>
+          <span>Sprint 1 Complete</span>
         </div>
       </div>
     </header>
@@ -601,74 +578,67 @@
               <circle class="circle-bg" cx="70" cy="70" r="64" />
               <circle id="progressCircle" class="circle-fill" cx="70" cy="70" r="64" />
             </svg>
-            <div id="progressPercent" class="percentage-text">6.7%</div>
+            <div id="progressPercent" class="percentage-text">13.3%</div>
           </div>
           <div>
             <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; margin-bottom: 0.5rem;">Overall Project Progress</h2>
             <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
-              Sprint 0 is fully completed! You have established the architecture, monorepo folders, Node/Express settings, and React/Tailwind base. Ready to move to Sprint 1.
+              Sprint 1 (Authentication & Authorization) is completed! You have built password hashing, JWT token generation, Express auth middleware, AuthContext, Login, Register, and Protected Routes.
             </p>
             <div class="progress-stats-grid">
               <div class="stat-box">
                 <div class="stat-label">Current Sprint</div>
-                <div class="stat-val">Sprint 1</div>
+                <div class="stat-val">Sprint 2</div>
               </div>
               <div class="stat-box">
                 <div class="stat-label">Commits</div>
-                <div id="commitCount" class="stat-val">2</div>
+                <div id="commitCount" class="stat-val">3</div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Current Sprint Tasks (Now shows Sprint 0 as fully checked) -->
+        <!-- Current Sprint Tasks -->
         <div class="card">
           <div class="tasks-header">
-            <h2>Sprint 0 Checklist (Archived)</h2>
-            <span style="font-size: 0.85rem; color: var(--text-muted);" id="taskRatio">6/6 Completed</span>
+            <h2>Sprint 1 Tasks Checklist (Completed)</h2>
+            <span style="font-size: 0.85rem; color: var(--text-muted);" id="taskRatio">5/5 Completed</span>
           </div>
           <div class="task-list">
             <div class="task-item completed">
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Create ROADMAP.md and define project timeline</div>
-              <span class="task-tag tag-doc">roadmap</span>
+              <div class="task-text">Design Prisma User schema with bcrypt password hashing</div>
+              <span class="task-tag tag-setup">schema</span>
             </div>
             <div class="task-item completed">
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Create progress.html project tracking dashboard</div>
-              <span class="task-tag tag-setup">dashboard</span>
+              <div class="task-text">Implement Register & Login endpoints with JWT tokens</div>
+              <span class="task-tag tag-feat">api</span>
             </div>
             <div class="task-item completed">
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Setup Server: Initialize Node.js, Express, and Prisma ORM</div>
-              <span class="task-tag tag-setup">backend</span>
+              <div class="task-text">Set up input validation and JWT authentication middleware</div>
+              <span class="task-tag tag-setup">middleware</span>
             </div>
             <div class="task-item completed">
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Setup Client: Initialize React with Vite and Tailwind CSS</div>
-              <span class="task-tag tag-setup">frontend</span>
+              <div class="task-text">Build React Auth Context and Login/Register pages</div>
+              <span class="task-tag tag-feat">ui</span>
             </div>
             <div class="task-item completed">
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Verify local API communication (/api/health)</div>
-              <span class="task-tag tag-feat">integration</span>
-            </div>
-            <div class="task-item completed">
-              <div class="task-checkbox">
-                <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-              </div>
-              <div class="task-text">Create Sprint 0 documentation (Sprint-0.md)</div>
-              <span class="task-tag tag-doc">documentation</span>
+              <div class="task-text">Set up protected route wrappers in React</div>
+              <span class="task-tag tag-setup">routing</span>
             </div>
           </div>
         </div>
@@ -708,24 +678,24 @@
                 <span class="sprint-status-tag">Done</span>
               </div>
             </div>
-            <div class="sprint-node active">
-              <div class="sprint-indicator">1</div>
+            <div class="sprint-node completed">
+              <div class="sprint-indicator">✓</div>
               <div class="sprint-details">
                 <div>
                   <div class="sprint-title">JWT Authentication</div>
-                  <div class="sprint-subtitle">Sprint 1 • Active</div>
+                  <div class="sprint-subtitle">Sprint 1 • Completed</div>
                 </div>
-                <span class="sprint-status-tag">Active</span>
+                <span class="sprint-status-tag">Done</span>
               </div>
             </div>
-            <div class="sprint-node">
+            <div class="sprint-node active">
               <div class="sprint-indicator">2</div>
               <div class="sprint-details">
                 <div>
                   <div class="sprint-title">Dashboard & Docs</div>
-                  <div class="sprint-subtitle">Sprint 2 • Views</div>
+                  <div class="sprint-subtitle">Sprint 2 • Active</div>
                 </div>
-                <span class="sprint-status-tag">Locked</span>
+                <span class="sprint-status-tag">Active</span>
               </div>
             </div>
             <div class="sprint-node">
@@ -758,7 +728,6 @@
                 <span class="sprint-status-tag">Locked</span>
               </div>
             </div>
-            <!-- More locked indication truncated for UI neatness -->
             <p style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding-top: 0.5rem;">Sprints 7–14 locked in pipeline</p>
           </div>
         </div>
@@ -768,10 +737,11 @@
           <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; margin-bottom: 0.75rem;">Skills Acquired</h2>
           <div class="skills-grid">
             <div class="skill-tag">System Design</div>
-            <div class="skill-tag">Monorepo Layout</div>
-            <div class="skill-tag">Vite & Tailwind</div>
-            <div class="skill-tag">Express Routing</div>
-            <div class="skill-tag">Prisma Scaffolding</div>
+            <div class="skill-tag">Bcrypt Hashing</div>
+            <div class="skill-tag">JWT Authorization</div>
+            <div class="skill-tag">Express Middleware</div>
+            <div class="skill-tag">React Context</div>
+            <div class="skill-tag">Protected Routes</div>
           </div>
         </div>
 
@@ -779,12 +749,12 @@
         <div class="card">
           <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; margin-bottom: 1rem;">Interview Review Topics</h2>
           <div class="qa-item">
-            <div class="qa-question">What is a monorepo setup, and why do companies use it?</div>
-            <div class="qa-answer">A repository holding code for multiple projects (e.g. client and server). It makes package sharing, atomic changes, and unified builds simple.</div>
+            <div class="qa-question">Authentication vs Authorization?</div>
+            <div class="qa-answer">AuthN verifies WHO you are (login). AuthZ determines WHAT you can do (permissions).</div>
           </div>
           <div class="qa-item">
-            <div class="qa-question">Why choose Vite over Create React App (CRA)?</div>
-            <div class="qa-answer">Vite pre-bundles dependencies with esbuild (Go-based) and serves source code over native ESM, loading dev servers instantly.</div>
+            <div class="qa-question">How does JWT Signature prevent tampering?</div>
+            <div class="qa-answer">The signature is computed using Header + Payload + Secret Key. Altering the payload invalidates the signature.</div>
           </div>
         </div>
       </div>
@@ -792,37 +762,30 @@
   </div>
 
   <script>
-    // Constants for progress calculations
-    const TOTAL_SPRINTS = 15; // Sprint 0 to 14
+    const TOTAL_SPRINTS = 15;
     
-    // Calculates total completion percentage
-    // Let's assume Sprint 0 completed counts for 1/15 of total progress (6.67%)
     function updateProgress() {
-      // 1 out of 15 Sprints is fully completed
-      const totalProgressPercent = Math.round((1 / TOTAL_SPRINTS) * 100);
+      // 2 out of 15 Sprints fully completed = 13.3%
+      const totalProgressPercent = Math.round((2 / TOTAL_SPRINTS) * 100);
       
       document.getElementById('progressPercent').innerText = `${totalProgressPercent}%`;
       
-      // Circle Stroke Animation
       const circle = document.getElementById('progressCircle');
       const radius = circle.r.baseVal.value;
-      const circumference = 2 * Math.PI * radius; // Approx 402px
+      const circumference = 2 * Math.PI * radius;
       const strokeOffset = circumference - (totalProgressPercent / 100) * circumference;
       circle.style.strokeDashoffset = strokeOffset;
     }
 
-    // LocalStorage Operations for Notes & reflections
     const notesArea = document.getElementById('notesText');
     const reflectionArea = document.getElementById('reflectionText');
     
-    // Load local data
     window.addEventListener('DOMContentLoaded', () => {
       notesArea.value = localStorage.getItem('collabspace_notes') || '';
       loadReflections();
       updateProgress();
     });
     
-    // Auto-save notes
     notesArea.addEventListener('input', () => {
       localStorage.setItem('collabspace_notes', notesArea.value);
     });
@@ -840,7 +803,6 @@
       localStorage.setItem('collabspace_reflections', JSON.stringify(reflections));
       reflectionArea.value = '';
       
-      // Show alert animation
       const alertEl = document.getElementById('saveAlert');
       alertEl.classList.add('show');
       setTimeout(() => alertEl.classList.remove('show'), 2000);

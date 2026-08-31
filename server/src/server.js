@@ -15,6 +15,8 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const authRoutes = require('./routes/auth.routes');
+
 // Health Check Endpoint (Sprint 0 Baseline)
 app.get('/api/health', (req, res) => {
   res.status(200).json({
@@ -23,6 +25,10 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
+
+// Authentication Routes (Sprint 1)
+app.use('/api/auth', authRoutes);
+
 
 // Root fallback route
 app.get('/', (req, res) => {

@@ -12,12 +12,12 @@ This roadmap outlines the milestones and features we will build week-by-week.
 - [x] Verify local API communication (`/api/health`)
 - [x] Create Sprint 0 documentation (`Sprint-0.md`)
 
-## 🔒 Sprint 1: Authentication & Authorization (Pending)
-- [ ] Design Prisma user schema with password hashing
-- [ ] Implement Register & Login endpoints with JWT
-- [ ] Set up user validation and error-handling middleware
-- [ ] Build client-side Auth Context and login/registration pages
-- [ ] Set up protected route wrappers in React
+## 🔒 Sprint 1: Authentication & Authorization (Completed)
+- [x] Design Prisma user schema with password hashing
+- [x] Implement Register & Login endpoints with JWT
+- [x] Set up user validation and error-handling middleware
+- [x] Build client-side Auth Context and login/registration pages
+- [x] Set up protected route wrappers in React
 
 ## 📋 Sprint 2: Dashboard & Document Management (Pending)
 - [ ] Create mock document list database endpoints
