@@ -19,11 +19,11 @@ This roadmap outlines the milestones and features we will build week-by-week.
 - [x] Build client-side Auth Context and login/registration pages
 - [x] Set up protected route wrappers in React
 
-## 📋 Sprint 2: Dashboard & Document Management (Pending)
-- [ ] Create mock document list database endpoints
-- [ ] Build frontend Dashboard UI with sidebar, search, and document cards
-- [ ] Implement Document Creation modal and Delete functionality
-- [ ] Setup route routing between Dashboard and Document Editor
+## 📋 Sprint 2: Dashboard & Document Management (Completed)
+- [x] Create Document schema with User relation & CRUD endpoints
+- [x] Build frontend Dashboard UI with sidebar, search, and document cards
+- [x] Implement Document Creation modal and Delete functionality
+- [x] Setup route routing between Dashboard and Document Editor
 
 ## 📝 Sprint 3: Rich Text Editor & Document CRUD (Pending)
 - [ ] Embed a rich text editor library (e.g., Quill or Slate.js)

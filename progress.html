@@ -168,7 +168,7 @@
       stroke: var(--success);
       stroke-width: 12;
       stroke-dasharray: 402;
-      stroke-dashoffset: 402; /* Will be updated via JS */
+      stroke-dashoffset: 402;
       stroke-linecap: round;
       transition: stroke-dashoffset 1s ease-in-out;
     }
@@ -560,10 +560,10 @@
       <div class="badge-container">
         <div class="badge badge-primary">
           <span class="pulse-indicator"></span>
-          <span>Sprint 2: Dashboard</span>
+          <span>Sprint 3: Rich Text Editor</span>
         </div>
         <div class="badge badge-success">
-          <span>Sprint 1 Complete</span>
+          <span>Sprint 2 Complete</span>
         </div>
       </div>
     </header>
@@ -578,21 +578,21 @@
               <circle class="circle-bg" cx="70" cy="70" r="64" />
               <circle id="progressCircle" class="circle-fill" cx="70" cy="70" r="64" />
             </svg>
-            <div id="progressPercent" class="percentage-text">13.3%</div>
+            <div id="progressPercent" class="percentage-text">20.0%</div>
           </div>
           <div>
             <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; margin-bottom: 0.5rem;">Overall Project Progress</h2>
             <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
-              Sprint 1 (Authentication & Authorization) is completed! You have built password hashing, JWT token generation, Express auth middleware, AuthContext, Login, Register, and Protected Routes.
+              Sprint 2 (Dashboard & Document Management) is completed! You have built the Document CRUD backend, responsive Sidebar, real-time live search, "+ New Document" modal, and delete confirmation dialogs.
             </p>
             <div class="progress-stats-grid">
               <div class="stat-box">
                 <div class="stat-label">Current Sprint</div>
-                <div class="stat-val">Sprint 2</div>
+                <div class="stat-val">Sprint 3</div>
               </div>
               <div class="stat-box">
                 <div class="stat-label">Commits</div>
-                <div id="commitCount" class="stat-val">3</div>
+                <div id="commitCount" class="stat-val">4</div>
               </div>
             </div>
           </div>
@@ -601,43 +601,36 @@
         <!-- Current Sprint Tasks -->
         <div class="card">
           <div class="tasks-header">
-            <h2>Sprint 1 Tasks Checklist (Completed)</h2>
-            <span style="font-size: 0.85rem; color: var(--text-muted);" id="taskRatio">5/5 Completed</span>
+            <h2>Sprint 2 Tasks Checklist (Completed)</h2>
+            <span style="font-size: 0.85rem; color: var(--text-muted);" id="taskRatio">4/4 Completed</span>
           </div>
           <div class="task-list">
             <div class="task-item completed">
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Design Prisma User schema with bcrypt password hashing</div>
-              <span class="task-tag tag-setup">schema</span>
+              <div class="task-text">Create Document model with User relation & CRUD endpoints</div>
+              <span class="task-tag tag-setup">schema & api</span>
             </div>
             <div class="task-item completed">
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Implement Register & Login endpoints with JWT tokens</div>
-              <span class="task-tag tag-feat">api</span>
-            </div>
-            <div class="task-item completed">
-              <div class="task-checkbox">
-                <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-              </div>
-              <div class="task-text">Set up input validation and JWT authentication middleware</div>
-              <span class="task-tag tag-setup">middleware</span>
-            </div>
-            <div class="task-item completed">
-              <div class="task-checkbox">
-                <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-              </div>
-              <div class="task-text">Build React Auth Context and Login/Register pages</div>
+              <div class="task-text">Build frontend Dashboard UI with sidebar, search, and document cards</div>
               <span class="task-tag tag-feat">ui</span>
             </div>
             <div class="task-item completed">
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Set up protected route wrappers in React</div>
+              <div class="task-text">Implement Document Creation modal and Delete confirmation</div>
+              <span class="task-tag tag-feat">modals</span>
+            </div>
+            <div class="task-item completed">
+              <div class="task-checkbox">
+                <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+              </div>
+              <div class="task-text">Setup route routing between Dashboard and Document Editor</div>
               <span class="task-tag tag-setup">routing</span>
             </div>
           </div>
@@ -688,24 +681,24 @@
                 <span class="sprint-status-tag">Done</span>
               </div>
             </div>
-            <div class="sprint-node active">
-              <div class="sprint-indicator">2</div>
+            <div class="sprint-node completed">
+              <div class="sprint-indicator">✓</div>
               <div class="sprint-details">
                 <div>
                   <div class="sprint-title">Dashboard & Docs</div>
-                  <div class="sprint-subtitle">Sprint 2 • Active</div>
+                  <div class="sprint-subtitle">Sprint 2 • Completed</div>
                 </div>
-                <span class="sprint-status-tag">Active</span>
+                <span class="sprint-status-tag">Done</span>
               </div>
             </div>
-            <div class="sprint-node">
+            <div class="sprint-node active">
               <div class="sprint-indicator">3</div>
               <div class="sprint-details">
                 <div>
                   <div class="sprint-title">Rich Text Editor</div>
-                  <div class="sprint-subtitle">Sprint 3 • Core Feat</div>
+                  <div class="sprint-subtitle">Sprint 3 • Active</div>
                 </div>
-                <span class="sprint-status-tag">Locked</span>
+                <span class="sprint-status-tag">Active</span>
               </div>
             </div>
             <div class="sprint-node">
@@ -737,11 +730,11 @@
           <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; margin-bottom: 0.75rem;">Skills Acquired</h2>
           <div class="skills-grid">
             <div class="skill-tag">System Design</div>
-            <div class="skill-tag">Bcrypt Hashing</div>
-            <div class="skill-tag">JWT Authorization</div>
-            <div class="skill-tag">Express Middleware</div>
-            <div class="skill-tag">React Context</div>
-            <div class="skill-tag">Protected Routes</div>
+            <div class="skill-tag">JWT Auth</div>
+            <div class="skill-tag">Document CRUD</div>
+            <div class="skill-tag">Prisma Relations</div>
+            <div class="skill-tag">Live Search Filter</div>
+            <div class="skill-tag">Modal Workflows</div>
           </div>
         </div>
 
@@ -749,12 +742,12 @@
         <div class="card">
           <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; margin-bottom: 1rem;">Interview Review Topics</h2>
           <div class="qa-item">
-            <div class="qa-question">Authentication vs Authorization?</div>
-            <div class="qa-answer">AuthN verifies WHO you are (login). AuthZ determines WHAT you can do (permissions).</div>
+            <div class="qa-question">What is Cascade Deletion?</div>
+            <div class="qa-answer">When a user is deleted, all their documents are automatically deleted to prevent orphaned records.</div>
           </div>
           <div class="qa-item">
-            <div class="qa-question">How does JWT Signature prevent tampering?</div>
-            <div class="qa-answer">The signature is computed using Header + Payload + Secret Key. Altering the payload invalidates the signature.</div>
+            <div class="qa-question">Client-side vs Server-side Search?</div>
+            <div class="qa-answer">Client-side is instant for small in-memory datasets; server-side pagination with SQL indexing is required for large datasets.</div>
           </div>
         </div>
       </div>
@@ -765,8 +758,8 @@
     const TOTAL_SPRINTS = 15;
     
     function updateProgress() {
-      // 2 out of 15 Sprints fully completed = 13.3%
-      const totalProgressPercent = Math.round((2 / TOTAL_SPRINTS) * 100);
+      // 3 out of 15 Sprints fully completed = 20.0%
+      const totalProgressPercent = Math.round((3 / TOTAL_SPRINTS) * 100);
       
       document.getElementById('progressPercent').innerText = `${totalProgressPercent}%`;
       
