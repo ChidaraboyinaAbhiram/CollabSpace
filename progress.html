@@ -560,10 +560,10 @@
       <div class="badge-container">
         <div class="badge badge-primary">
           <span class="pulse-indicator"></span>
-          <span>Sprint 3: Rich Text Editor</span>
+          <span>Sprint 4: PostgreSQL & Prisma</span>
         </div>
         <div class="badge badge-success">
-          <span>Sprint 2 Complete</span>
+          <span>Sprint 3 Complete</span>
         </div>
       </div>
     </header>
@@ -578,21 +578,21 @@
               <circle class="circle-bg" cx="70" cy="70" r="64" />
               <circle id="progressCircle" class="circle-fill" cx="70" cy="70" r="64" />
             </svg>
-            <div id="progressPercent" class="percentage-text">20.0%</div>
+            <div id="progressPercent" class="percentage-text">26.7%</div>
           </div>
           <div>
             <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; margin-bottom: 0.5rem;">Overall Project Progress</h2>
             <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
-              Sprint 2 (Dashboard & Document Management) is completed! You have built the Document CRUD backend, responsive Sidebar, real-time live search, "+ New Document" modal, and delete confirmation dialogs.
+              Sprint 3 (Rich Text Editor & Document CRUD) is completed! You have built the Quill editing canvas, PUT update API, debounced autosave engine, live word count, and status pill indicators.
             </p>
             <div class="progress-stats-grid">
               <div class="stat-box">
                 <div class="stat-label">Current Sprint</div>
-                <div class="stat-val">Sprint 3</div>
+                <div class="stat-val">Sprint 4</div>
               </div>
               <div class="stat-box">
                 <div class="stat-label">Commits</div>
-                <div id="commitCount" class="stat-val">4</div>
+                <div id="commitCount" class="stat-val">5</div>
               </div>
             </div>
           </div>
@@ -601,7 +601,7 @@
         <!-- Current Sprint Tasks -->
         <div class="card">
           <div class="tasks-header">
-            <h2>Sprint 2 Tasks Checklist (Completed)</h2>
+            <h2>Sprint 3 Tasks Checklist (Completed)</h2>
             <span style="font-size: 0.85rem; color: var(--text-muted);" id="taskRatio">4/4 Completed</span>
           </div>
           <div class="task-list">
@@ -609,29 +609,29 @@
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Create Document model with User relation & CRUD endpoints</div>
-              <span class="task-tag tag-setup">schema & api</span>
+              <div class="task-text">Embed rich text editor library (Quill) with dark styling</div>
+              <span class="task-tag tag-setup">editor</span>
             </div>
             <div class="task-item completed">
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Build frontend Dashboard UI with sidebar, search, and document cards</div>
+              <div class="task-text">Build fullscreen editor page UI with title & icon customization</div>
               <span class="task-tag tag-feat">ui</span>
             </div>
             <div class="task-item completed">
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Implement Document Creation modal and Delete confirmation</div>
-              <span class="task-tag tag-feat">modals</span>
+              <div class="task-text">Implement document update endpoint (PUT /api/documents/:id)</div>
+              <span class="task-tag tag-setup">api</span>
             </div>
             <div class="task-item completed">
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Setup route routing between Dashboard and Document Editor</div>
-              <span class="task-tag tag-setup">routing</span>
+              <div class="task-text">Implement debounced autosave engine with status pill indicator</div>
+              <span class="task-tag tag-feat">autosave</span>
             </div>
           </div>
         </div>
@@ -691,24 +691,24 @@
                 <span class="sprint-status-tag">Done</span>
               </div>
             </div>
-            <div class="sprint-node active">
-              <div class="sprint-indicator">3</div>
+            <div class="sprint-node completed">
+              <div class="sprint-indicator">✓</div>
               <div class="sprint-details">
                 <div>
                   <div class="sprint-title">Rich Text Editor</div>
-                  <div class="sprint-subtitle">Sprint 3 • Active</div>
+                  <div class="sprint-subtitle">Sprint 3 • Completed</div>
                 </div>
-                <span class="sprint-status-tag">Active</span>
+                <span class="sprint-status-tag">Done</span>
               </div>
             </div>
-            <div class="sprint-node">
+            <div class="sprint-node active">
               <div class="sprint-indicator">4</div>
               <div class="sprint-details">
                 <div>
                   <div class="sprint-title">Prisma & Postgres</div>
-                  <div class="sprint-subtitle">Sprint 4 • Database</div>
+                  <div class="sprint-subtitle">Sprint 4 • Active</div>
                 </div>
-                <span class="sprint-status-tag">Locked</span>
+                <span class="sprint-status-tag">Active</span>
               </div>
             </div>
             <div class="sprint-node">
@@ -729,12 +729,12 @@
         <div class="card">
           <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; margin-bottom: 0.75rem;">Skills Acquired</h2>
           <div class="skills-grid">
-            <div class="skill-tag">System Design</div>
-            <div class="skill-tag">JWT Auth</div>
-            <div class="skill-tag">Document CRUD</div>
-            <div class="skill-tag">Prisma Relations</div>
-            <div class="skill-tag">Live Search Filter</div>
-            <div class="skill-tag">Modal Workflows</div>
+            <div class="skill-tag">Rich Text Engine</div>
+            <div class="skill-tag">Debouncing (1.5s)</div>
+            <div class="skill-tag">Autosave System</div>
+            <div class="skill-tag">Word Counter</div>
+            <div class="skill-tag">Status Indicators</div>
+            <div class="skill-tag">PUT Endpoint</div>
           </div>
         </div>
 
@@ -742,12 +742,12 @@
         <div class="card">
           <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; margin-bottom: 1rem;">Interview Review Topics</h2>
           <div class="qa-item">
-            <div class="qa-question">What is Cascade Deletion?</div>
-            <div class="qa-answer">When a user is deleted, all their documents are automatically deleted to prevent orphaned records.</div>
+            <div class="qa-question">Debouncing vs Throttling?</div>
+            <div class="qa-answer">Debouncing delays execution until a period of inactivity ends (ideal for autosave). Throttling guarantees execution at most once per fixed time interval.</div>
           </div>
           <div class="qa-item">
-            <div class="qa-question">Client-side vs Server-side Search?</div>
-            <div class="qa-answer">Client-side is instant for small in-memory datasets; server-side pagination with SQL indexing is required for large datasets.</div>
+            <div class="qa-question">Why use useRef for timer IDs?</div>
+            <div class="qa-answer">useRef persists across re-renders without causing unwanted component re-renders when the timer ID is updated.</div>
           </div>
         </div>
       </div>
@@ -758,8 +758,8 @@
     const TOTAL_SPRINTS = 15;
     
     function updateProgress() {
-      // 3 out of 15 Sprints fully completed = 20.0%
-      const totalProgressPercent = Math.round((3 / TOTAL_SPRINTS) * 100);
+      // 4 out of 15 Sprints fully completed = 26.7%
+      const totalProgressPercent = Math.round((4 / TOTAL_SPRINTS) * 100);
       
       document.getElementById('progressPercent').innerText = `${totalProgressPercent}%`;
       

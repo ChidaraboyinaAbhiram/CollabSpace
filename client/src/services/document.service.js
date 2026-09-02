@@ -71,3 +71,21 @@ export const deleteDocument = async (id) => {
   }
   return data;
 };
+
+/**
+ * Update document title, icon, and/or content
+ */
+export const updateDocument = async (id, updates) => {
+  const response = await fetch(`${API_URL}/${id}`, {
+    method: 'PUT',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(updates)
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Failed to save document changes');
+  }
+  return data.document;
+};
+

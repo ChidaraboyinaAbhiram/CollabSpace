@@ -193,10 +193,84 @@ const deleteDocument = async (req, res) => {
   }
 };
 
+/**
+ * Update a document (title, icon, content)
+ * PUT /api/documents/:id
+ */
+const updateDocument = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, icon, content } = req.body;
+    const userId = req.user.id;
+
+    let doc = null;
+
+    try {
+      doc = await prisma.document.findUnique({
+        where: { id }
+      });
+    } catch (dbErr) {
+      doc = memoryDocuments.get(id) || null;
+    }
+
+    if (!doc) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Document not found'
+      });
+    }
+
+    // Verify ownership
+    if (doc.ownerId !== userId) {
+      return res.status(403).json({
+        status: 'error',
+        message: 'Forbidden. You do not have permission to update this document.'
+      });
+    }
+
+    const updatedData = {
+      title: title !== undefined ? title : doc.title,
+      icon: icon !== undefined ? icon : doc.icon,
+      content: content !== undefined ? content : doc.content,
+      updatedAt: new Date()
+    };
+
+    let updatedDoc = null;
+
+    try {
+      updatedDoc = await prisma.document.update({
+        where: { id },
+        data: updatedData
+      });
+    } catch (dbErr) {
+      updatedDoc = {
+        ...doc,
+        ...updatedData,
+        updatedAt: new Date().toISOString()
+      };
+      memoryDocuments.set(id, updatedDoc);
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Document updated successfully',
+      document: updatedDoc
+    });
+  } catch (error) {
+    console.error('Update Document Controller Error:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Failed to update document'
+    });
+  }
+};
+
 module.exports = {
   createDocument,
   getDocuments,
   getDocumentById,
+  updateDocument,
   deleteDocument,
   memoryDocuments
 };
+

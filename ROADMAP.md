@@ -25,11 +25,11 @@ This roadmap outlines the milestones and features we will build week-by-week.
 - [x] Implement Document Creation modal and Delete functionality
 - [x] Setup route routing between Dashboard and Document Editor
 
-## 📝 Sprint 3: Rich Text Editor & Document CRUD (Pending)
-- [ ] Embed a rich text editor library (e.g., Quill or Slate.js)
-- [ ] Build basic editor page UI
-- [ ] Create document fetch, update, and autosave APIs
-- [ ] Implement autosave mechanism on the frontend with debouncing
+## 📝 Sprint 3: Rich Text Editor & Document CRUD (Completed)
+- [x] Embed a rich text editor library (Quill)
+- [x] Build basic editor page UI
+- [x] Create document fetch, update, and autosave APIs
+- [x] Implement autosave mechanism on the frontend with debouncing
 
 ## 💾 Sprint 4: PostgreSQL & Database Schema (Pending)
 - [ ] Connect Prisma to local PostgreSQL database
