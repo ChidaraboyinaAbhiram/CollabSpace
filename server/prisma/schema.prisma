@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,25 +10,67 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Role-Based Access Control (RBAC)
+enum Role {
+  VIEWER
+  EDITOR
+  ADMIN
+}
+
+// User Entity
 model User {
-  id        String     @id @default(uuid())
-  name      String
-  email     String     @unique
-  password  String
-  documents Document[] @relation("UserDocuments")
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  id             String         @id @default(uuid())
+  name           String
+  email          String         @unique
+  password       String
+  documents      Document[]     @relation("UserDocuments")
+  collaborations Collaborator[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([email])
 }
 
+// Document Entity
 model Document {
-  id        String   @id @default(uuid())
-  title     String   @default("Untitled Document")
-  content   String?  @default("")
-  icon      String?  @default("📄")
-  ownerId   String
-  owner     User     @relation("UserDocuments", fields: [ownerId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String            @id @default(uuid())
+  title         String            @default("Untitled Document")
+  content       String?           @default("")
+  icon          String?           @default("📄")
+  ownerId       String
+  owner         User              @relation("UserDocuments", fields: [ownerId], references: [id], onDelete: Cascade)
+  collaborators Collaborator[]
+  versions      DocumentVersion[]
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@index([ownerId])
+  @@index([updatedAt])
 }
 
+// Collaborator (Shared Document Access & Permissions)
+model Collaborator {
+  id         String   @id @default(uuid())
+  role       Role     @default(EDITOR)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
 
+  @@unique([userId, documentId])
+  @@index([userId])
+  @@index([documentId])
+}
+
+// Document Version (Historical Snapshots)
+model DocumentVersion {
+  id         String   @id @default(uuid())
+  title      String
+  content    String?
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@index([documentId])
+}

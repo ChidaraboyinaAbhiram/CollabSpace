@@ -31,11 +31,11 @@ This roadmap outlines the milestones and features we will build week-by-week.
 - [x] Create document fetch, update, and autosave APIs
 - [x] Implement autosave mechanism on the frontend with debouncing
 
-## 💾 Sprint 4: PostgreSQL & Database Schema (Pending)
-- [ ] Connect Prisma to local PostgreSQL database
-- [ ] Run migrations for User, Document, and Collaborator schemas
-- [ ] Refactor auth and document APIs to use database models
-- [ ] Seed database with initial sample data
+## 💾 Sprint 4: PostgreSQL & Database Schema (Completed)
+- [x] Design relational schema with Role enum, Collaborator, & DocumentVersion
+- [x] Configure B-Tree database indexing on email, ownerId, and updatedAt
+- [x] Create automated database seeding script (`prisma/seed.js`)
+- [x] Update controllers to query relational owner, collaborator, and version models
 
 ## 🧪 Sprint 5: React State & Custom Contexts (Pending)
 - [ ] Set up robust state management for document and active sessions
