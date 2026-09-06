@@ -2,14 +2,23 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const prisma = require('../config/db');
 
-// In-memory fallback user store (used when local PostgreSQL is not running yet in Sprint 1-3)
+// In-memory fallback user store (used when local PostgreSQL is not running yet)
 const memoryUsers = new Map();
 
-// Helper to generate JWT token
-const generateToken = (userId) => {
-  const secret = process.env.JWT_SECRET || 'supersecretjwtkeycollabspace2026';
+// Helper to generate JWT token with full user payload
+const generateToken = (user) => {
+  const secret = process.env.JWT_SECRET || 'collabspace_super_secret_jwt_key_2026';
   const expiresIn = process.env.JWT_EXPIRES_IN || '7d';
-  return jwt.sign({ userId }, secret, { expiresIn });
+  return jwt.sign(
+    {
+      id: user.id,
+      userId: user.id,
+      name: user.name,
+      email: user.email
+    },
+    secret,
+    { expiresIn }
+  );
 };
 
 /**
@@ -29,7 +38,6 @@ const register = async (req, res) => {
         where: { email: normalizedEmail }
       });
     } catch (dbErr) {
-      console.warn('PostgreSQL database not reached. Using in-memory auth store for Sprint 1.');
       isDbAvailable = false;
       existingUser = memoryUsers.get(normalizedEmail) || null;
     }
@@ -74,9 +82,8 @@ const register = async (req, res) => {
     }
 
     // Generate JWT token
-    const token = generateToken(newUser.id);
+    const token = generateToken(newUser);
 
-    // Sanitize password from response payload
     const userPayload = {
       id: newUser.id,
       name: newUser.name,
@@ -127,7 +134,6 @@ const login = async (req, res) => {
       });
     }
 
-    // Compare plain password with stored bcrypt hash
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
@@ -137,8 +143,7 @@ const login = async (req, res) => {
       });
     }
 
-    // Generate token
-    const token = generateToken(user.id);
+    const token = generateToken(user);
 
     const userPayload = {
       id: user.id,

@@ -17,16 +17,17 @@ const authenticateToken = async (req, res, next) => {
     }
 
     const token = authHeader.split(' ')[1];
-    const secret = process.env.JWT_SECRET || 'supersecretjwtkeycollabspace2026';
+    const secret = process.env.JWT_SECRET || 'collabspace_super_secret_jwt_key_2026';
 
     // Verify token signature & expiration
     const decoded = jwt.verify(token, secret);
+    const userId = decoded.id || decoded.userId;
 
     let user = null;
 
     try {
       user = await prisma.user.findUnique({
-        where: { id: decoded.userId },
+        where: { id: userId },
         select: {
           id: true,
           name: true,
@@ -38,7 +39,7 @@ const authenticateToken = async (req, res, next) => {
       // Look up user in memory store if database is offline
       if (memoryUsers) {
         for (const memUser of memoryUsers.values()) {
-          if (memUser.id === decoded.userId) {
+          if (memUser.id === userId) {
             user = {
               id: memUser.id,
               name: memUser.name,

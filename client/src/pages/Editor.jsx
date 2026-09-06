@@ -9,6 +9,8 @@ import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import Avatar from '../components/ui/Avatar';
 import ShareModal from '../components/ShareModal';
+import CursorOverlay from '../components/CursorOverlay';
+import TypingIndicator from '../components/TypingIndicator';
 
 function EditorInner() {
   const { id } = useParams();
@@ -33,21 +35,29 @@ function EditorInner() {
   const [showIconPicker, setShowIconPicker] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [activeUsers, setActiveUsers] = useState([]);
+  const [remoteCursors, setRemoteCursors] = useState({});
+  const [typingUsers, setTypingUsers] = useState([]);
+
   const quillRef = useRef(null);
   const socketRef = useRef(null);
+  const typingTimerRef = useRef(null);
 
   const availableIcons = ['📄', '📝', '💡', '🚀', '📊', '🎯', '💻', '📚', '⚡', '🛠️', '✨', '🔥'];
 
-  // 1. Socket Lifecycle: Join Document Room & Listen for Delta Changes
+  // 1. Socket Lifecycle: Join Document Room, Presence, Cursors & Typing Events
   useEffect(() => {
     const socket = getSocket();
     if (!socket || !id) return;
     socketRef.current = socket;
 
-    // Join document room
     socket.emit('join-document', id);
 
-    // Receive incoming Delta changes from other collaborators
+    // Initial presence roster of users already in room
+    const handlePresence = (usersList) => {
+      setActiveUsers(usersList);
+    };
+
+    // Incoming Delta changes from peers
     const handleReceiveChanges = (delta) => {
       if (quillRef.current) {
         const editor = quillRef.current.getEditor();
@@ -55,7 +65,7 @@ function EditorInner() {
       }
     };
 
-    // Active collaborator presence notifications
+    // User Joined Notification
     const handleUserJoined = (user) => {
       setActiveUsers((prev) => {
         if (prev.some((u) => u.id === user.id)) return prev;
@@ -63,41 +73,110 @@ function EditorInner() {
       });
     };
 
+    // User Left Notification
     const handleUserLeft = ({ userId }) => {
       setActiveUsers((prev) => prev.filter((u) => u.id !== userId));
+      setRemoteCursors((prev) => {
+        const updated = { ...prev };
+        delete updated[userId];
+        return updated;
+      });
+      setTypingUsers((prev) => prev.filter((u) => u.userId !== userId));
     };
 
+    // Remote Cursor Positions
+    const handleRemoteCursor = ({ userId, range, user }) => {
+      setRemoteCursors((prev) => ({
+        ...prev,
+        [userId]: { range, user }
+      }));
+    };
+
+    const handleRemoveCursor = ({ userId }) => {
+      setRemoteCursors((prev) => {
+        const updated = { ...prev };
+        delete updated[userId];
+        return updated;
+      });
+    };
+
+    // Live Typing Indicators
+    const handleUserTyping = ({ userId, name }) => {
+      setTypingUsers((prev) => {
+        if (prev.some((u) => u.userId === userId)) return prev;
+        return [...prev, { userId, name }];
+      });
+    };
+
+    const handleUserStopTyping = ({ userId }) => {
+      setTypingUsers((prev) => prev.filter((u) => u.userId !== userId));
+    };
+
+    socket.on('document-presence', handlePresence);
     socket.on('receive-changes', handleReceiveChanges);
     socket.on('user-joined', handleUserJoined);
     socket.on('user-left', handleUserLeft);
+    socket.on('remote-cursor-update', handleRemoteCursor);
+    socket.on('remove-cursor', handleRemoveCursor);
+    socket.on('user-typing', handleUserTyping);
+    socket.on('user-stop-typing', handleUserStopTyping);
 
     return () => {
       socket.emit('leave-document', id);
+      socket.off('document-presence', handlePresence);
       socket.off('receive-changes', handleReceiveChanges);
       socket.off('user-joined', handleUserJoined);
       socket.off('user-left', handleUserLeft);
+      socket.off('remote-cursor-update', handleRemoteCursor);
+      socket.off('remove-cursor', handleRemoveCursor);
+      socket.off('user-typing', handleUserTyping);
+      socket.off('user-stop-typing', handleUserStopTyping);
     };
   }, [id]);
 
-  // 2. Quill Text-Change Listener: Broadcast Deltas only when source is 'user'
+  // 2. Quill Text-Change & Selection-Change Listeners
   useEffect(() => {
     if (!quillRef.current) return;
     const editor = quillRef.current.getEditor();
 
+    // Broadcast Delta Changes & Trigger Typing Indicator
     const handleTextChange = (delta, oldDelta, source) => {
-      if (source !== 'user') return; // Prevent echo loop
+      if (source !== 'user') return;
 
       if (socketRef.current && id) {
-        socketRef.current.emit('send-changes', {
+        socketRef.current.emit('send-changes', { documentId: id, delta });
+
+        // Emit typing notification
+        socketRef.current.emit('user-typing', { documentId: id });
+
+        if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
+        typingTimerRef.current = setTimeout(() => {
+          if (socketRef.current && id) {
+            socketRef.current.emit('user-stop-typing', { documentId: id });
+          }
+        }, 2000);
+      }
+    };
+
+    // Broadcast Cursor Movement / Range
+    const handleSelectionChange = (range, oldRange, source) => {
+      if (source !== 'user' || !range) return;
+
+      if (socketRef.current && id) {
+        socketRef.current.emit('cursor-move', {
           documentId: id,
-          delta
+          range
         });
       }
     };
 
     editor.on('text-change', handleTextChange);
+    editor.on('selection-change', handleSelectionChange);
+
     return () => {
       editor.off('text-change', handleTextChange);
+      editor.off('selection-change', handleSelectionChange);
+      if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
     };
   }, [id]);
 
@@ -113,7 +192,6 @@ function EditorInner() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [saveNow]);
 
-  // Calculate live word and character counts
   const calculateStats = () => {
     const textOnly = content ? content.replace(/<[^>]*>/g, '').trim() : '';
     const chars = textOnly.length;
@@ -217,23 +295,19 @@ function EditorInner() {
           />
         </div>
 
-        {/* Right: Active Users, Collaborators, Word Count, Save Status, Share Button */}
+        {/* Right: Active Users Presence, Word Count, Save Status, Share Button */}
         <div className="flex items-center gap-3.5">
-          {/* Active Online Users & Collaborator Avatars Stack */}
+          {/* Active Online Users Avatars Stack with Live Pulse Dot */}
           <div className="hidden lg:flex items-center -space-x-2">
-            <Avatar name={owner.name} email={owner.email} size="sm" />
-            {collaborators.slice(0, 3).map((c) => (
-              <Avatar
-                key={c.id || c.userId}
-                name={c.user?.name || 'User'}
-                email={c.user?.email}
-                size="sm"
-              />
-            ))}
+            <div className="relative" title={`${owner.name} (Owner)`}>
+              <Avatar name={owner.name} email={owner.email} size="sm" />
+              <span className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-dark-900 animate-pulse"></span>
+            </div>
+
             {activeUsers.map((u) => (
-              <div key={u.id} className="relative">
-                <Avatar name={u.name} email={u.email} size="sm" />
-                <span className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-500 border border-dark-900"></span>
+              <div key={u.id} className="relative" title={`${u.name || u.email} (Online)`}>
+                <Avatar name={u.name || 'User'} email={u.email} size="sm" />
+                <span className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-dark-900"></span>
               </div>
             ))}
           </div>
@@ -281,9 +355,13 @@ function EditorInner() {
         </div>
       </header>
 
-      {/* Main Rich Text Editor Canvas */}
-      <main className="flex-1 flex flex-col items-center p-4 sm:p-8">
-        <div className="max-w-4xl w-full bg-dark-800/60 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-6 sm:p-10 flex-1 flex flex-col min-h-[750px]">
+      {/* Main Rich Text Editor Canvas with Remote Cursors Overlay */}
+      <main className="flex-1 flex flex-col items-center p-4 sm:p-8 relative">
+        <div className="max-w-4xl w-full bg-dark-800/60 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-6 sm:p-10 flex-1 flex flex-col min-h-[750px] relative">
+          {/* Multi-User Cursor Overlay */}
+          <CursorOverlay cursors={remoteCursors} quillRef={quillRef} />
+
+          {/* Quill Editor */}
           <ReactQuill
             ref={quillRef}
             theme="snow"
@@ -294,6 +372,9 @@ function EditorInner() {
             className="collabspace-editor flex-1 flex flex-col"
           />
         </div>
+
+        {/* Live Floating Typing Indicator */}
+        <TypingIndicator typingUsers={typingUsers} />
       </main>
 
       {/* Share Modal Dialog */}

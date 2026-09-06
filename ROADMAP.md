@@ -49,10 +49,11 @@ This roadmap outlines the milestones and features we will build week-by-week.
 - [x] Implement Room joining logic (room per document ID)
 - [x] Synchronize editor contents in real-time between clients with echo-loop prevention
 
-## 👥 Sprint 7: User Presence System (Pending)
-- [ ] Implement online users indicator bar
-- [ ] Build real-time typing indicators
-- [ ] Implement collaborative cursor tracking (cursors moving in real-time)
+## 👥 Sprint 7: User Presence System (Completed)
+- [x] Implement online users indicator bar and presence roster
+- [x] Build real-time typing indicators with animated bouncing dots
+- [x] Implement collaborative cursor tracking (cursors moving in real-time with name tags)
+- [x] Configure automatic cleanup on user disconnection and room departure
 
 ## 💬 Sprint 8: Comments & Sharing (Pending)
 - [ ] Create comment database schemas and API endpoints
