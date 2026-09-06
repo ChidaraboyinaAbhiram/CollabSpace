@@ -20,7 +20,7 @@ const withDbTimeout = (promise, ms = 800) => {
 const createVersion = async (req, res) => {
   try {
     const { id: documentId } = req.params;
-    const { versionName } = req.body;
+    const { versionName, name, content } = req.body;
     const userId = req.user?.id || req.user?.userId;
 
     let doc = null;
@@ -30,7 +30,8 @@ const createVersion = async (req, res) => {
         doc = await withDbTimeout(
           prisma.document.findUnique({
             where: { id: documentId }
-          })
+          }),
+          400
         );
       } catch (dbErr) {
         isDbAvailable = false;
@@ -48,9 +49,11 @@ const createVersion = async (req, res) => {
       });
     }
 
-    const versionLabel = versionName && versionName.trim()
-      ? versionName.trim()
+    const versionLabel = (versionName || name) && (versionName || name).trim()
+      ? (versionName || name).trim()
       : `Snapshot ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+
+    const snapshotContent = content !== undefined ? content : (doc.content || '');
 
     let newVersion = null;
 
@@ -60,7 +63,7 @@ const createVersion = async (req, res) => {
           prisma.documentVersion.create({
             data: {
               title: doc.title,
-              content: doc.content || '',
+              content: snapshotContent,
               versionName: versionLabel,
               documentId,
               createdById: userId
@@ -70,7 +73,8 @@ const createVersion = async (req, res) => {
                 select: { id: true, name: true, email: true }
               }
             }
-          })
+          }),
+          400
         );
       } catch (dbErr) {
         isDbAvailable = false;
@@ -82,7 +86,7 @@ const createVersion = async (req, res) => {
       newVersion = {
         id: versionId,
         title: doc.title,
-        content: doc.content || '',
+        content: snapshotContent,
         versionName: versionLabel,
         documentId,
         createdById: userId,

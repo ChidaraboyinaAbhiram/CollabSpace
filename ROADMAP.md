@@ -78,10 +78,12 @@ This roadmap outlines the milestones and features we will build week-by-week.
 - [x] Optimize render performance in editor and subcomponents with `React.memo`
 - [x] Configure Rollup vendor chunk isolation in `vite.config.js`
 
-## 🧪 Sprint 12: Testing (Pending)
-- [ ] Write backend API unit and integration tests
-- [ ] Set up frontend component testing
-- [ ] Write WebSocket connection mocks and sync flow tests
+## 🧪 Sprint 12: Testing (Completed)
+- [x] Write backend API integration tests for Auth, Document CRUD, and Cache-Aside
+- [x] Write Comment highlight and threaded discussions integration tests
+- [x] Write Version History point-in-time recovery and safety backup tests
+- [x] Build multi-client WebSocket connection mocks and real-time sync tests
+- [x] Implement master automated test runner (`npm test`) with 100% pass rate
 
 ## 🐳 Sprint 13: Docker & Deployment (Pending)
 - [ ] Dockerize backend and frontend applications

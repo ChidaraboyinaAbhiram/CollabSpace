@@ -1,9 +1,18 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const prisma = require('../config/db');
 
 // In-memory fallback user store (used when local PostgreSQL is not running yet)
 const memoryUsers = new Map();
+let isDbAvailable = true;
+
+const withDbTimeout = (promise, ms = 400) => {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('DB Timeout')), ms))
+  ]);
+};
 
 // Helper to generate JWT token with full user payload
 const generateToken = (user) => {
@@ -28,17 +37,37 @@ const generateToken = (user) => {
 const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    const normalizedEmail = email.toLowerCase().trim();
-
-    let existingUser = null;
-    let isDbAvailable = true;
-
-    try {
-      existingUser = await prisma.user.findUnique({
-        where: { email: normalizedEmail }
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Name, email, and password are required.'
       });
-    } catch (dbErr) {
-      isDbAvailable = false;
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Password must be at least 6 characters long.'
+      });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    let existingUser = null;
+
+    if (isDbAvailable) {
+      try {
+        existingUser = await withDbTimeout(
+          prisma.user.findUnique({
+            where: { email: normalizedEmail }
+          }),
+          400
+        );
+      } catch (dbErr) {
+        isDbAvailable = false;
+      }
+    }
+
+    if (!isDbAvailable) {
       existingUser = memoryUsers.get(normalizedEmail) || null;
     }
 
@@ -56,21 +85,29 @@ const register = async (req, res) => {
     let newUser = null;
 
     if (isDbAvailable) {
-      newUser = await prisma.user.create({
-        data: {
-          name: name.trim(),
-          email: normalizedEmail,
-          password: hashedPassword
-        },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          createdAt: true
-        }
-      });
-    } else {
-      const crypto = require('crypto');
+      try {
+        newUser = await withDbTimeout(
+          prisma.user.create({
+            data: {
+              name: name.trim(),
+              email: normalizedEmail,
+              password: hashedPassword
+            },
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              createdAt: true
+            }
+          }),
+          400
+        );
+      } catch (dbErr) {
+        isDbAvailable = false;
+      }
+    }
+
+    if (!isDbAvailable || !newUser) {
       newUser = {
         id: crypto.randomUUID(),
         name: name.trim(),
@@ -113,17 +150,30 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const normalizedEmail = email.toLowerCase().trim();
-
-    let user = null;
-    let isDbAvailable = true;
-
-    try {
-      user = await prisma.user.findUnique({
-        where: { email: normalizedEmail }
+    if (!email || !password) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Email and password are required.'
       });
-    } catch (dbErr) {
-      isDbAvailable = false;
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    let user = null;
+
+    if (isDbAvailable) {
+      try {
+        user = await withDbTimeout(
+          prisma.user.findUnique({
+            where: { email: normalizedEmail }
+          }),
+          400
+        );
+      } catch (dbErr) {
+        isDbAvailable = false;
+      }
+    }
+
+    if (!isDbAvailable) {
       user = memoryUsers.get(normalizedEmail) || null;
     }
 
@@ -154,7 +204,7 @@ const login = async (req, res) => {
 
     return res.status(200).json({
       status: 'success',
-      message: 'Login successful',
+      message: 'Logged in successfully',
       token,
       user: userPayload
     });
@@ -162,7 +212,7 @@ const login = async (req, res) => {
     console.error('Login Controller Error:', error);
     return res.status(500).json({
       status: 'error',
-      message: 'Failed to authenticate user due to a server error'
+      message: 'Failed to log in due to a server error'
     });
   }
 };
@@ -178,10 +228,9 @@ const getMe = async (req, res) => {
       user: req.user
     });
   } catch (error) {
-    console.error('GetMe Controller Error:', error);
     return res.status(500).json({
       status: 'error',
-      message: 'Failed to fetch user profile'
+      message: 'Failed to retrieve profile'
     });
   }
 };
