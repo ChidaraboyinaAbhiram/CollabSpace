@@ -10,7 +10,7 @@ const getAuthHeaders = () => {
 };
 
 /**
- * Fetch all documents owned by user
+ * Fetch all documents owned or shared with user
  */
 export const fetchDocuments = async () => {
   const response = await fetch(API_URL, {
@@ -42,7 +42,7 @@ export const createDocument = async (title, icon) => {
 };
 
 /**
- * Get document details by ID
+ * Get document details by ID (including owner, collaborators, versions)
  */
 export const getDocumentById = async (id) => {
   const response = await fetch(`${API_URL}/${id}`, {
@@ -52,6 +52,23 @@ export const getDocumentById = async (id) => {
   const data = await response.json();
   if (!response.ok) {
     throw new Error(data.message || 'Failed to retrieve document');
+  }
+  return data.document;
+};
+
+/**
+ * Update document title, icon, and/or content
+ */
+export const updateDocument = async (id, updates) => {
+  const response = await fetch(`${API_URL}/${id}`, {
+    method: 'PUT',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(updates)
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Failed to save document changes');
   }
   return data.document;
 };
@@ -73,19 +90,51 @@ export const deleteDocument = async (id) => {
 };
 
 /**
- * Update document title, icon, and/or content
+ * Share a document with a collaborator by email
  */
-export const updateDocument = async (id, updates) => {
-  const response = await fetch(`${API_URL}/${id}`, {
-    method: 'PUT',
+export const shareDocument = async (id, email, role = 'EDITOR') => {
+  const response = await fetch(`${API_URL}/${id}/share`, {
+    method: 'POST',
     headers: getAuthHeaders(),
-    body: JSON.stringify(updates)
+    body: JSON.stringify({ email, role })
   });
 
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.message || 'Failed to save document changes');
+    throw new Error(data.message || 'Failed to share document');
   }
-  return data.document;
+  return data.collaborator;
 };
 
+/**
+ * Update a collaborator's role
+ */
+export const updateCollaboratorRole = async (id, userId, role) => {
+  const response = await fetch(`${API_URL}/${id}/collaborators/${userId}`, {
+    method: 'PATCH',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ role })
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Failed to update collaborator role');
+  }
+  return data.collaborator;
+};
+
+/**
+ * Remove a collaborator from document
+ */
+export const removeCollaborator = async (id, userId) => {
+  const response = await fetch(`${API_URL}/${id}/collaborators/${userId}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders()
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Failed to remove collaborator');
+  }
+  return data;
+};

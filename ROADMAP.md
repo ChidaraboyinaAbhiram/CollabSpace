@@ -37,10 +37,11 @@ This roadmap outlines the milestones and features we will build week-by-week.
 - [x] Create automated database seeding script (`prisma/seed.js`)
 - [x] Update controllers to query relational owner, collaborator, and version models
 
-## 🧪 Sprint 5: React State & Custom Contexts (Pending)
-- [ ] Set up robust state management for document and active sessions
-- [ ] Extract UI components into reusable designs (Buttons, Inputs, Modals)
-- [ ] Build collaborative permissions menu UI (Share modal)
+## 🧪 Sprint 5: React State & Custom Contexts (Completed)
+- [x] Set up robust state management for document and active sessions (`DocumentContext`)
+- [x] Extract UI components into reusable designs (Buttons, Modals, Badges, Inputs, Avatars)
+- [x] Build collaborative permissions menu UI (`ShareModal`)
+- [x] Implement backend sharing endpoints (`POST /share`, `PATCH role`, `DELETE`)
 
 ## ⚡ Sprint 6: Socket.IO Real-time Sync (Pending)
 - [ ] Set up Socket.IO server on backend

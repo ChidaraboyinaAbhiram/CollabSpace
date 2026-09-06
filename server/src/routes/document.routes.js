@@ -5,6 +5,9 @@ const {
   getDocuments,
   getDocumentById,
   updateDocument,
+  shareDocument,
+  updateCollaboratorRole,
+  removeCollaborator,
   deleteDocument
 } = require('../controllers/document.controller');
 const { authenticateToken } = require('../middleware/auth.middleware');
@@ -19,5 +22,9 @@ router.get('/:id', getDocumentById);
 router.put('/:id', updateDocument);
 router.delete('/:id', deleteDocument);
 
-module.exports = router;
+// Collaborator and sharing endpoints
+router.post('/:id/share', shareDocument);
+router.patch('/:id/collaborators/:userId', updateCollaboratorRole);
+router.delete('/:id/collaborators/:userId', removeCollaborator);
 
+module.exports = router;
