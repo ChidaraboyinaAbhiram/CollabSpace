@@ -37,9 +37,21 @@ function initSocket(httpServer) {
     // Continue with default memory adapter
   }
 
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    ...(process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',').map(s => s.trim()) : [])
+  ];
+
   io = new Server(httpServer, {
     cors: {
-      origin: ['http://localhost:5173', 'http://localhost:3000'],
+      origin: allowedOrigins.length > 0 ? (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+          callback(null, true);
+        } else {
+          callback(null, true); // Permissive in production for cloud deployment
+        }
+      } : '*',
       methods: ['GET', 'POST', 'PUT', 'DELETE'],
       credentials: true
     },

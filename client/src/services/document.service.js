@@ -1,4 +1,6 @@
-const API_URL = 'http://localhost:5000/api/documents';
+import { API_ENDPOINTS } from '../config/api';
+
+const API_URL = API_ENDPOINTS.DOCUMENTS;
 
 // Helper to get auth headers
 const getAuthHeaders = () => {
