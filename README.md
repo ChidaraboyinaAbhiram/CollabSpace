@@ -3,13 +3,18 @@
 <div align="center">
 
 ![CollabSpace Banner](https://img.shields.io/badge/CollabSpace-v1.0.0-6366f1?style=for-the-badge&logo=rocket)
+[![Live App](https://img.shields.io/badge/Live%20App-collab--space--pearl.vercel.app-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://collab-space-pearl.vercel.app)
+[![API Status](https://img.shields.io/badge/API%20Status-Render%20Live-10b981?style=for-the-badge&logo=render)](https://collabspace-api-05m4.onrender.com/api/health)
 [![Build Status](https://img.shields.io/badge/Build-Passing-10b981?style=for-the-badge&logo=githubactions)](https://github.com/ChidaraboyinaAbhiram/CollabSpace)
 [![Tests](https://img.shields.io/badge/Tests-48%2F48%20Passed%20(100%25)-10b981?style=for-the-badge&logo=jest)](https://github.com/ChidaraboyinaAbhiram/CollabSpace)
 [![License](https://img.shields.io/badge/License-ISC-amber?style=for-the-badge)](LICENSE)
 
 **An enterprise-grade, high-concurrency real-time collaborative document platform inspired by Google Docs and Notion.**
 
-[Features](#-key-features) • [Architecture](#-system-architecture) • [Tech Stack](#-tech-stack) • [Quick Start](#-quick-start) • [Docker](#-docker--container-deployment) • [Free Cloud Deployment](#-free-cloud-deployment-guide) • [Sprints](#-sprints-documentation)
+🌐 **Live Demo:** [https://collab-space-pearl.vercel.app](https://collab-space-pearl.vercel.app)  
+📡 **Live API Health Check:** [https://collabspace-api-05m4.onrender.com/api/health](https://collabspace-api-05m4.onrender.com/api/health)
+
+[Live Demo](https://collab-space-pearl.vercel.app) • [Features](#-key-features) • [Architecture](#-system-architecture) • [Tech Stack](#-tech-stack) • [Quick Start](#-quick-start) • [Docker](#-docker--container-deployment) • [Sprints](#-sprints-documentation)
 
 </div>
 
