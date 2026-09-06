@@ -10,6 +10,7 @@ const {
   removeCollaborator,
   deleteDocument
 } = require('../controllers/document.controller');
+const commentRoutes = require('./comment.routes');
 const { authenticateToken } = require('../middleware/auth.middleware');
 
 // Protect all document routes with authentication
@@ -26,5 +27,8 @@ router.delete('/:id', deleteDocument);
 router.post('/:id/share', shareDocument);
 router.patch('/:id/collaborators/:userId', updateCollaboratorRole);
 router.delete('/:id/collaborators/:userId', removeCollaborator);
+
+// Comment and thread endpoints (Sprint 8)
+router.use('/:id/comments', commentRoutes);
 
 module.exports = router;

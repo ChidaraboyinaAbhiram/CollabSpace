@@ -57,7 +57,7 @@ function initSocket(httpServer) {
   io.on('connection', (socket) => {
     console.log(`🔌 Connected: ${socket.user?.name || 'User'} (${socket.id})`);
 
-    // 1. Join Document Collaboration Room & Sync Presence Roster
+    // 1. Join Document Room & Sync Presence Roster
     socket.on('join-document', async (documentId) => {
       if (!documentId) return;
 
@@ -72,11 +72,8 @@ function initSocket(httpServer) {
 
       console.log(`📄 User ${socket.user?.name} joined room: ${documentId} (Active in room: ${roomMap.size})`);
 
-      // Emit complete active users roster to the joiner
       const activeUsersList = Array.from(roomMap.values());
       socket.emit('document-presence', activeUsersList);
-
-      // Broadcast new user arrival to peers in the room
       socket.to(documentId).emit('user-joined', socket.user);
     });
 
@@ -112,7 +109,23 @@ function initSocket(httpServer) {
       });
     });
 
-    // 5. Document Autosave via WebSocket
+    // 5. Real-Time Comment Events (Sprint 8)
+    socket.on('new-comment', ({ documentId, comment }) => {
+      if (!documentId || !comment) return;
+      socket.to(documentId).emit('comment-added', comment);
+    });
+
+    socket.on('resolve-comment', ({ documentId, commentId, resolved }) => {
+      if (!documentId || !commentId) return;
+      socket.to(documentId).emit('comment-resolved', { commentId, resolved });
+    });
+
+    socket.on('delete-comment', ({ documentId, commentId }) => {
+      if (!documentId || !commentId) return;
+      socket.to(documentId).emit('comment-deleted', { commentId });
+    });
+
+    // 6. Document Autosave via WebSocket
     socket.on('save-document', async ({ documentId, content, title }) => {
       if (!documentId) return;
       try {
@@ -129,7 +142,7 @@ function initSocket(httpServer) {
       }
     });
 
-    // 6. Leave Document Room & Cleanup
+    // 7. Leave Document Room & Cleanup
     const handleLeaveRoom = () => {
       const docId = socket.documentId;
       if (!docId) return;
@@ -144,7 +157,6 @@ function initSocket(httpServer) {
         }
       }
 
-      // Notify peers to remove cursor, typing indicator, and avatar
       socket.to(docId).emit('user-left', { userId: socket.user.id });
       socket.to(docId).emit('remove-cursor', { userId: socket.user.id });
       socket.to(docId).emit('user-stop-typing', { userId: socket.user.id });

@@ -5,12 +5,15 @@ import 'react-quill-new/dist/quill.snow.css';
 
 import { DocumentProvider, useDocument } from '../context/DocumentContext';
 import { getSocket } from '../services/socket.service';
+import * as commentService from '../services/comment.service';
+
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import Avatar from '../components/ui/Avatar';
 import ShareModal from '../components/ShareModal';
 import CursorOverlay from '../components/CursorOverlay';
 import TypingIndicator from '../components/TypingIndicator';
+import CommentSidebar from '../components/CommentSidebar';
 
 function EditorInner() {
   const { id } = useParams();
@@ -34,9 +37,17 @@ function EditorInner() {
 
   const [showIconPicker, setShowIconPicker] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isCommentSidebarOpen, setIsCommentSidebarOpen] = useState(false);
+
+  // Presence & Cursors
   const [activeUsers, setActiveUsers] = useState([]);
   const [remoteCursors, setRemoteCursors] = useState({});
   const [typingUsers, setTypingUsers] = useState([]);
+
+  // Comments & Highlights
+  const [comments, setComments] = useState([]);
+  const [floatingTooltip, setFloatingTooltip] = useState(null); // { top, left, text, range }
+  const [pendingHighlight, setPendingHighlight] = useState(null);
 
   const quillRef = useRef(null);
   const socketRef = useRef(null);
@@ -44,7 +55,16 @@ function EditorInner() {
 
   const availableIcons = ['📄', '📝', '💡', '🚀', '📊', '🎯', '💻', '📚', '⚡', '🛠️', '✨', '🔥'];
 
-  // 1. Socket Lifecycle: Join Document Room, Presence, Cursors & Typing Events
+  // 1. Fetch Comments
+  useEffect(() => {
+    if (!id) return;
+    commentService
+      .getComments(id)
+      .then(setComments)
+      .catch((err) => console.warn('Failed to fetch comments:', err.message));
+  }, [id]);
+
+  // 2. Socket Lifecycle: Presence, Deltas, Cursors, Typing & Real-Time Comments
   useEffect(() => {
     const socket = getSocket();
     if (!socket || !id) return;
@@ -52,12 +72,8 @@ function EditorInner() {
 
     socket.emit('join-document', id);
 
-    // Initial presence roster of users already in room
-    const handlePresence = (usersList) => {
-      setActiveUsers(usersList);
-    };
+    const handlePresence = (usersList) => setActiveUsers(usersList);
 
-    // Incoming Delta changes from peers
     const handleReceiveChanges = (delta) => {
       if (quillRef.current) {
         const editor = quillRef.current.getEditor();
@@ -65,7 +81,6 @@ function EditorInner() {
       }
     };
 
-    // User Joined Notification
     const handleUserJoined = (user) => {
       setActiveUsers((prev) => {
         if (prev.some((u) => u.id === user.id)) return prev;
@@ -73,7 +88,6 @@ function EditorInner() {
       });
     };
 
-    // User Left Notification
     const handleUserLeft = ({ userId }) => {
       setActiveUsers((prev) => prev.filter((u) => u.id !== userId));
       setRemoteCursors((prev) => {
@@ -84,7 +98,6 @@ function EditorInner() {
       setTypingUsers((prev) => prev.filter((u) => u.userId !== userId));
     };
 
-    // Remote Cursor Positions
     const handleRemoteCursor = ({ userId, range, user }) => {
       setRemoteCursors((prev) => ({
         ...prev,
@@ -100,7 +113,6 @@ function EditorInner() {
       });
     };
 
-    // Live Typing Indicators
     const handleUserTyping = ({ userId, name }) => {
       setTypingUsers((prev) => {
         if (prev.some((u) => u.userId === userId)) return prev;
@@ -112,6 +124,34 @@ function EditorInner() {
       setTypingUsers((prev) => prev.filter((u) => u.userId !== userId));
     };
 
+    // Real-Time Comment Listeners
+    const handleCommentAdded = (newComment) => {
+      setComments((prev) => {
+        if (newComment.parentId) {
+          return prev.map((parent) => {
+            if (parent.id === newComment.parentId) {
+              const existingReplies = parent.replies || [];
+              if (existingReplies.some((r) => r.id === newComment.id)) return parent;
+              return { ...parent, replies: [...existingReplies, newComment] };
+            }
+            return parent;
+          });
+        }
+        if (prev.some((c) => c.id === newComment.id)) return prev;
+        return [newComment, ...prev];
+      });
+    };
+
+    const handleCommentResolved = ({ commentId, resolved }) => {
+      setComments((prev) =>
+        prev.map((c) => (c.id === commentId ? { ...c, resolved } : c))
+      );
+    };
+
+    const handleCommentDeleted = ({ commentId }) => {
+      setComments((prev) => prev.filter((c) => c.id !== commentId));
+    };
+
     socket.on('document-presence', handlePresence);
     socket.on('receive-changes', handleReceiveChanges);
     socket.on('user-joined', handleUserJoined);
@@ -120,6 +160,9 @@ function EditorInner() {
     socket.on('remove-cursor', handleRemoveCursor);
     socket.on('user-typing', handleUserTyping);
     socket.on('user-stop-typing', handleUserStopTyping);
+    socket.on('comment-added', handleCommentAdded);
+    socket.on('comment-resolved', handleCommentResolved);
+    socket.on('comment-deleted', handleCommentDeleted);
 
     return () => {
       socket.emit('leave-document', id);
@@ -131,22 +174,22 @@ function EditorInner() {
       socket.off('remove-cursor', handleRemoveCursor);
       socket.off('user-typing', handleUserTyping);
       socket.off('user-stop-typing', handleUserStopTyping);
+      socket.off('comment-added', handleCommentAdded);
+      socket.off('comment-resolved', handleCommentResolved);
+      socket.off('comment-deleted', handleCommentDeleted);
     };
   }, [id]);
 
-  // 2. Quill Text-Change & Selection-Change Listeners
+  // 3. Quill Text-Change & Selection-Change (with Floating Highlight Tooltip)
   useEffect(() => {
     if (!quillRef.current) return;
     const editor = quillRef.current.getEditor();
 
-    // Broadcast Delta Changes & Trigger Typing Indicator
     const handleTextChange = (delta, oldDelta, source) => {
       if (source !== 'user') return;
 
       if (socketRef.current && id) {
         socketRef.current.emit('send-changes', { documentId: id, delta });
-
-        // Emit typing notification
         socketRef.current.emit('user-typing', { documentId: id });
 
         if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
@@ -158,16 +201,35 @@ function EditorInner() {
       }
     };
 
-    // Broadcast Cursor Movement / Range
     const handleSelectionChange = (range, oldRange, source) => {
-      if (source !== 'user' || !range) return;
-
-      if (socketRef.current && id) {
-        socketRef.current.emit('cursor-move', {
-          documentId: id,
-          range
-        });
+      if (source !== 'user' || !range) {
+        setFloatingTooltip(null);
+        return;
       }
+
+      // Broadcast cursor move
+      if (socketRef.current && id) {
+        socketRef.current.emit('cursor-move', { documentId: id, range });
+      }
+
+      // Detect highlighted text range
+      if (range.length > 0) {
+        const text = editor.getText(range.index, range.length).trim();
+        if (text) {
+          const bounds = editor.getBounds(range.index, range.length);
+          if (bounds) {
+            setFloatingTooltip({
+              top: bounds.top - 36,
+              left: bounds.left + bounds.width / 2,
+              text,
+              range
+            });
+            return;
+          }
+        }
+      }
+
+      setFloatingTooltip(null);
     };
 
     editor.on('text-change', handleTextChange);
@@ -180,7 +242,69 @@ function EditorInner() {
     };
   }, [id]);
 
-  // 3. Keyboard Shortcut for Manual Save (Ctrl+S / Cmd+S)
+  // 4. Comment Handlers
+  const handleAddComment = async (commentData) => {
+    const created = await commentService.createComment(id, commentData);
+    setComments((prev) => {
+      if (created.parentId) {
+        return prev.map((p) =>
+          p.id === created.parentId
+            ? { ...p, replies: [...(p.replies || []), created] }
+            : p
+        );
+      }
+      return [created, ...prev];
+    });
+
+    if (socketRef.current) {
+      socketRef.current.emit('new-comment', { documentId: id, comment: created });
+    }
+  };
+
+  const handleReplyComment = async (parentId, text) => {
+    const reply = await commentService.createComment(id, {
+      content: text,
+      parentId
+    });
+
+    setComments((prev) =>
+      prev.map((p) =>
+        p.id === parentId
+          ? { ...p, replies: [...(p.replies || []), reply] }
+          : p
+      )
+    );
+
+    if (socketRef.current) {
+      socketRef.current.emit('new-comment', { documentId: id, comment: reply });
+    }
+  };
+
+  const handleResolveComment = async (commentId, resolved) => {
+    await commentService.resolveComment(id, commentId, resolved);
+    setComments((prev) =>
+      prev.map((c) => (c.id === commentId ? { ...c, resolved } : c))
+    );
+
+    if (socketRef.current) {
+      socketRef.current.emit('resolve-comment', {
+        documentId: id,
+        commentId,
+        resolved
+      });
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    await commentService.deleteComment(id, commentId);
+    setComments((prev) => prev.filter((c) => c.id !== commentId));
+
+    if (socketRef.current) {
+      socketRef.current.emit('delete-comment', { documentId: id, commentId });
+    }
+  };
+
+  // Keyboard shortcut for manual save (Ctrl+S / Cmd+S)
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
@@ -200,6 +324,7 @@ function EditorInner() {
   };
 
   const { words, chars } = calculateStats();
+  const activeCommentsCount = comments.filter((c) => !c.resolved).length;
 
   const modules = {
     toolbar: [
@@ -239,7 +364,6 @@ function EditorInner() {
     );
   }
 
-  const collaborators = doc?.collaborators || [];
   const owner = doc?.owner || { name: 'Owner', email: 'owner@collabspace.com' };
 
   return (
@@ -295,9 +419,9 @@ function EditorInner() {
           />
         </div>
 
-        {/* Right: Active Users Presence, Word Count, Save Status, Share Button */}
+        {/* Right: Presence Avatars, Comments Toggle, Save Status, Share Button */}
         <div className="flex items-center gap-3.5">
-          {/* Active Online Users Avatars Stack with Live Pulse Dot */}
+          {/* Active Online Users Avatars Stack */}
           <div className="hidden lg:flex items-center -space-x-2">
             <div className="relative" title={`${owner.name} (Owner)`}>
               <Avatar name={owner.name} email={owner.email} size="sm" />
@@ -315,32 +439,33 @@ function EditorInner() {
           {/* Word Counter */}
           <div className="hidden md:flex items-center gap-2 text-xs text-gray-400 bg-dark-800/60 border border-white/5 px-3 py-1.5 rounded-xl font-mono">
             <span>{words} words</span>
-            <span className="text-gray-600">•</span>
-            <span>{chars} chars</span>
           </div>
+
+          {/* Comments Toggle Button */}
+          <button
+            onClick={() => setIsCommentSidebarOpen(!isCommentSidebarOpen)}
+            title="Toggle Comments"
+            className={`px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer ${
+              isCommentSidebarOpen
+                ? 'bg-indigo-600 border-indigo-500 text-white'
+                : 'bg-dark-800 hover:bg-white/5 border-white/10 text-gray-300 hover:text-white'
+            }`}
+          >
+            <span>💬</span>
+            <span className="hidden sm:inline">Comments</span>
+            {activeCommentsCount > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full bg-indigo-500 text-white text-[10px] font-bold">
+                {activeCommentsCount}
+              </span>
+            )}
+          </button>
 
           {/* Live Status Pill */}
           <div className="flex items-center">
-            {saveStatus === 'saving' && (
-              <Badge variant="primary" dot>
-                Saving...
-              </Badge>
-            )}
-            {saveStatus === 'saved' && (
-              <Badge variant="success">
-                ✓ Live Sync
-              </Badge>
-            )}
-            {saveStatus === 'unsaved' && (
-              <Badge variant="warning" dot>
-                Unsaved changes...
-              </Badge>
-            )}
-            {saveStatus === 'error' && (
-              <Badge variant="danger">
-                ⚠️ Save failed
-              </Badge>
-            )}
+            {saveStatus === 'saving' && <Badge variant="primary" dot>Saving...</Badge>}
+            {saveStatus === 'saved' && <Badge variant="success">✓ Live Sync</Badge>}
+            {saveStatus === 'unsaved' && <Badge variant="warning" dot>Unsaved...</Badge>}
+            {saveStatus === 'error' && <Badge variant="danger">⚠️ Save failed</Badge>}
           </div>
 
           {/* Share Button */}
@@ -355,11 +480,34 @@ function EditorInner() {
         </div>
       </header>
 
-      {/* Main Rich Text Editor Canvas with Remote Cursors Overlay */}
+      {/* Main Rich Text Editor Canvas */}
       <main className="flex-1 flex flex-col items-center p-4 sm:p-8 relative">
         <div className="max-w-4xl w-full bg-dark-800/60 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-6 sm:p-10 flex-1 flex flex-col min-h-[750px] relative">
           {/* Multi-User Cursor Overlay */}
           <CursorOverlay cursors={remoteCursors} quillRef={quillRef} />
+
+          {/* Floating Highlight "Add Comment" Button */}
+          {floatingTooltip && (
+            <button
+              onClick={() => {
+                setPendingHighlight({
+                  text: floatingTooltip.text,
+                  range: floatingTooltip.range
+                });
+                setIsCommentSidebarOpen(true);
+                setFloatingTooltip(null);
+              }}
+              style={{
+                top: `${floatingTooltip.top}px`,
+                left: `${floatingTooltip.left}px`,
+                transform: 'translateX(-50%)'
+              }}
+              className="absolute z-30 px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-full shadow-xl shadow-indigo-500/20 flex items-center gap-1.5 transition cursor-pointer animate-fadeIn"
+            >
+              <span>💬</span>
+              <span>Comment</span>
+            </button>
+          )}
 
           {/* Quill Editor */}
           <ReactQuill
@@ -376,6 +524,20 @@ function EditorInner() {
         {/* Live Floating Typing Indicator */}
         <TypingIndicator typingUsers={typingUsers} />
       </main>
+
+      {/* Comments Sidebar Panel */}
+      <CommentSidebar
+        isOpen={isCommentSidebarOpen}
+        onClose={() => setIsCommentSidebarOpen(false)}
+        comments={comments}
+        currentUserId={doc?.ownerId}
+        onAddComment={handleAddComment}
+        onReply={handleReplyComment}
+        onResolve={handleResolveComment}
+        onDelete={handleDeleteComment}
+        pendingHighlight={pendingHighlight}
+        onClearPendingHighlight={() => setPendingHighlight(null)}
+      />
 
       {/* Share Modal Dialog */}
       <ShareModal

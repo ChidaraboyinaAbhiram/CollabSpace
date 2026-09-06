@@ -55,10 +55,11 @@ This roadmap outlines the milestones and features we will build week-by-week.
 - [x] Implement collaborative cursor tracking (cursors moving in real-time with name tags)
 - [x] Configure automatic cleanup on user disconnection and room departure
 
-## 💬 Sprint 8: Comments & Sharing (Pending)
-- [ ] Create comment database schemas and API endpoints
-- [ ] Build editor sidebar for commenting on document highlights
-- [ ] Create document-level permissions (View-only, Can Edit)
+## 💬 Sprint 8: Comments & Sharing (Completed)
+- [x] Create comment database schemas and API endpoints with Prisma self-relation
+- [x] Build editor sidebar for commenting on document highlights (`CommentSidebar`)
+- [x] Implement threaded discussion replies and thread resolution status
+- [x] Sync comments live over WebSockets with floating highlight triggers
 
 ## 📜 Sprint 9: Version History & Restoration (Pending)
 - [ ] Create document version history database schema
