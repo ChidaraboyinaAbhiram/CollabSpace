@@ -19,15 +19,16 @@ enum Role {
 
 // User Entity
 model User {
-  id             String         @id @default(uuid())
-  name           String
-  email          String         @unique
-  password       String
-  documents      Document[]     @relation("UserDocuments")
-  collaborations Collaborator[]
-  comments       Comment[]
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  id              String            @id @default(uuid())
+  name            String
+  email           String            @unique
+  password        String
+  documents       Document[]        @relation("UserDocuments")
+  collaborations  Collaborator[]
+  comments        Comment[]
+  createdVersions DocumentVersion[] @relation("VersionAuthor")
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
 
   @@index([email])
 }
@@ -67,14 +68,18 @@ model Collaborator {
 
 // Document Version (Historical Snapshots)
 model DocumentVersion {
-  id         String   @id @default(uuid())
-  title      String
-  content    String?
-  documentId String
-  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
+  id          String   @id @default(uuid())
+  title       String
+  content     String?
+  versionName String?  @default("Automatic Snapshot")
+  documentId  String
+  document    Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  createdById String?
+  createdBy   User?    @relation("VersionAuthor", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
 
   @@index([documentId])
+  @@index([createdById])
 }
 
 // Document Comment (Threads & Anchored Highlights)

@@ -125,7 +125,18 @@ function initSocket(httpServer) {
       socket.to(documentId).emit('comment-deleted', { commentId });
     });
 
-    // 6. Document Autosave via WebSocket
+    // 6. Real-Time Version & Restoration Events (Sprint 9)
+    socket.on('version-created', ({ documentId, version }) => {
+      if (!documentId || !version) return;
+      socket.to(documentId).emit('version-created', version);
+    });
+
+    socket.on('restore-document', ({ documentId, document }) => {
+      if (!documentId || !document) return;
+      socket.to(documentId).emit('document-restored', document);
+    });
+
+    // 7. Document Autosave via WebSocket
     socket.on('save-document', async ({ documentId, content, title }) => {
       if (!documentId) return;
       try {
@@ -142,7 +153,7 @@ function initSocket(httpServer) {
       }
     });
 
-    // 7. Leave Document Room & Cleanup
+    // 8. Leave Document Room & Cleanup
     const handleLeaveRoom = () => {
       const docId = socket.documentId;
       if (!docId) return;

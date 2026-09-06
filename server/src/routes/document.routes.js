@@ -11,6 +11,7 @@ const {
   deleteDocument
 } = require('../controllers/document.controller');
 const commentRoutes = require('./comment.routes');
+const versionRoutes = require('./version.routes');
 const { authenticateToken } = require('../middleware/auth.middleware');
 
 // Protect all document routes with authentication
@@ -30,5 +31,8 @@ router.delete('/:id/collaborators/:userId', removeCollaborator);
 
 // Comment and thread endpoints (Sprint 8)
 router.use('/:id/comments', commentRoutes);
+
+// Version history and snapshot endpoints (Sprint 9)
+router.use('/:id/versions', versionRoutes);
 
 module.exports = router;

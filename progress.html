@@ -560,10 +560,10 @@
       <div class="badge-container">
         <div class="badge badge-primary">
           <span class="pulse-indicator"></span>
-          <span>Sprint 9: Version History</span>
+          <span>Sprint 10: Redis Caching</span>
         </div>
         <div class="badge badge-success">
-          <span>Sprint 8 Complete</span>
+          <span>Sprint 9 Complete</span>
         </div>
       </div>
     </header>
@@ -578,21 +578,21 @@
               <circle class="circle-bg" cx="70" cy="70" r="64" />
               <circle id="progressCircle" class="circle-fill" cx="70" cy="70" r="64" />
             </svg>
-            <div id="progressPercent" class="percentage-text">60.0%</div>
+            <div id="progressPercent" class="percentage-text">66.7%</div>
           </div>
           <div>
             <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; margin-bottom: 0.5rem;">Overall Project Progress</h2>
             <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
-              Sprint 8 (Comments & Sharing) is completed! You have built comment data modeling with recursive self-relations in Prisma, REST APIs, real-time WebSocket comment syncing, floating text highlight anchoring, and the collapsible CommentSidebar UI.
+              Sprint 9 (Version History & Restoration) is completed! You have built document versioning with author attribution, point-in-time recovery, pre-restoration safety backups, timeline previewing, and real-time WebSocket restoration sync.
             </p>
             <div class="progress-stats-grid">
               <div class="stat-box">
                 <div class="stat-label">Current Sprint</div>
-                <div class="stat-val">Sprint 9</div>
+                <div class="stat-val">Sprint 10</div>
               </div>
               <div class="stat-box">
                 <div class="stat-label">Commits</div>
-                <div id="commitCount" class="stat-val">10</div>
+                <div id="commitCount" class="stat-val">11</div>
               </div>
             </div>
           </div>
@@ -601,7 +601,7 @@
         <!-- Current Sprint Tasks -->
         <div class="card">
           <div class="tasks-header">
-            <h2>Sprint 8 Tasks Checklist (Completed)</h2>
+            <h2>Sprint 9 Tasks Checklist (Completed)</h2>
             <span style="font-size: 0.85rem; color: var(--text-muted);" id="taskRatio">4/4 Completed</span>
           </div>
           <div class="task-list">
@@ -609,28 +609,28 @@
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Create Comment database schema with Prisma self-relation for threaded replies</div>
+              <div class="task-text">Create DocumentVersion database schema with author attribution in Prisma</div>
               <span class="task-tag tag-setup">prisma</span>
             </div>
             <div class="task-item completed">
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Implement Comment CRUD and Resolve REST API endpoints</div>
+              <div class="task-text">Implement Version snapshot, list, preview, and restore REST API endpoints</div>
               <span class="task-tag tag-feat">rest api</span>
             </div>
             <div class="task-item completed">
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Build CommentSidebar with Active/Resolved tabs and threaded replies</div>
-              <span class="task-tag tag-feat">sidebar</span>
+              <div class="task-text">Build VersionHistoryDrawer with timeline navigator and read-only preview pane</div>
+              <span class="task-tag tag-feat">drawer</span>
             </div>
             <div class="task-item completed">
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Sync comments in real-time over WebSockets with floating highlight triggers</div>
+              <div class="task-text">Configure automated pre-restoration backups and real-time restoration sync</div>
               <span class="task-tag tag-feat">realtime</span>
             </div>
           </div>
@@ -751,17 +751,27 @@
                 <span class="sprint-status-tag">Done</span>
               </div>
             </div>
-            <div class="sprint-node active">
-              <div class="sprint-indicator">9</div>
+            <div class="sprint-node completed">
+              <div class="sprint-indicator">✓</div>
               <div class="sprint-details">
                 <div>
                   <div class="sprint-title">Version History</div>
-                  <div class="sprint-subtitle">Sprint 9 • Active</div>
+                  <div class="sprint-subtitle">Sprint 9 • Completed</div>
+                </div>
+                <span class="sprint-status-tag">Done</span>
+              </div>
+            </div>
+            <div class="sprint-node active">
+              <div class="sprint-indicator">10</div>
+              <div class="sprint-details">
+                <div>
+                  <div class="sprint-title">Redis Caching</div>
+                  <div class="sprint-subtitle">Sprint 10 • Active</div>
                 </div>
                 <span class="sprint-status-tag">Active</span>
               </div>
             </div>
-            <p style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding-top: 0.5rem;">Sprints 10–14 locked in pipeline</p>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding-top: 0.5rem;">Sprints 11–14 locked in pipeline</p>
           </div>
         </div>
 
@@ -769,12 +779,12 @@
         <div class="card">
           <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; margin-bottom: 0.75rem;">Skills Acquired</h2>
           <div class="skills-grid">
-            <div class="skill-tag">Prisma Self-Relations</div>
-            <div class="skill-tag">Threaded Comments</div>
-            <div class="skill-tag">Highlight Anchoring</div>
-            <div class="skill-tag">Resolution Status</div>
-            <div class="skill-tag">Real-Time Comments</div>
-            <div class="skill-tag">CommentSidebar UI</div>
+            <div class="skill-tag">Point-in-Time Recovery</div>
+            <div class="skill-tag">Safety Backups</div>
+            <div class="skill-tag">Revision Timelines</div>
+            <div class="skill-tag">Read-Only Previews</div>
+            <div class="skill-tag">Live Restoration Sync</div>
+            <div class="skill-tag">Audit Tracking</div>
           </div>
         </div>
 
@@ -782,12 +792,12 @@
         <div class="card">
           <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; margin-bottom: 1rem;">Interview Review Topics</h2>
           <div class="qa-item">
-            <div class="qa-question">How do self-relations work in SQL?</div>
-            <div class="qa-answer">A foreign key (parentId) references the primary key (id) of the same table, forming a parent-child tree hierarchy for threaded replies.</div>
+            <div class="qa-question">Snapshots vs Reverse Diffs?</div>
+            <div class="qa-answer">Snapshots provide O(1) instant retrieval and simple restoration, while diffs save disk storage at the cost of O(N) reconstruction compute.</div>
           </div>
           <div class="qa-item">
-            <div class="qa-question">Why mergeParams: true in Express?</div>
-            <div class="qa-answer">It preserves parent URL parameters (:id) so nested sub-routes (/documents/:id/comments) can access documentId in request handlers.</div>
+            <div class="qa-question">Why onDelete: SetNull on author?</div>
+            <div class="qa-answer">Preserves critical historical document audit logs even if a former employee's user account is deactivated or removed.</div>
           </div>
         </div>
       </div>
@@ -798,8 +808,8 @@
     const TOTAL_SPRINTS = 15;
     
     function updateProgress() {
-      // 9 out of 15 Sprints fully completed = 60.0%
-      const totalProgressPercent = Math.round((9 / TOTAL_SPRINTS) * 100);
+      // 10 out of 15 Sprints fully completed = 66.7%
+      const totalProgressPercent = Math.round((10 / TOTAL_SPRINTS) * 100);
       
       document.getElementById('progressPercent').innerText = `${totalProgressPercent}%`;
       

@@ -1,10 +1,18 @@
 const prisma = require('../config/db');
 const crypto = require('crypto');
 
-// In-memory fallback stores for development
+// In-memory fallback document store for development
 const memoryDocuments = new Map();
 const memoryCollaborators = new Map();
 const memoryVersions = new Map();
+let isDbAvailable = true;
+
+const withDbTimeout = (promise, ms = 800) => {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('DB Timeout')), ms))
+  ]);
+};
 
 /**
  * Create a new document
@@ -13,35 +21,41 @@ const memoryVersions = new Map();
 const createDocument = async (req, res) => {
   try {
     const { title, icon } = req.body;
-    const userId = req.user.id;
+    const userId = req.user?.id || req.user?.userId;
 
     const docTitle = title && title.trim() ? title.trim() : 'Untitled Document';
     const docIcon = icon && icon.trim() ? icon.trim() : '📄';
 
     let newDoc = null;
-    let isDbAvailable = true;
 
-    try {
-      newDoc = await prisma.document.create({
-        data: {
-          title: docTitle,
-          icon: docIcon,
-          content: '',
-          ownerId: userId
-        },
-        include: {
-          owner: {
-            select: { id: true, name: true, email: true }
-          },
-          collaborators: {
+    if (isDbAvailable) {
+      try {
+        newDoc = await withDbTimeout(
+          prisma.document.create({
+            data: {
+              title: docTitle,
+              icon: docIcon,
+              content: '',
+              ownerId: userId
+            },
             include: {
-              user: { select: { id: true, name: true, email: true } }
+              owner: {
+                select: { id: true, name: true, email: true }
+              },
+              collaborators: {
+                include: {
+                  user: { select: { id: true, name: true, email: true } }
+                }
+              }
             }
-          }
-        }
-      });
-    } catch (dbErr) {
-      isDbAvailable = false;
+          })
+        );
+      } catch (dbErr) {
+        isDbAvailable = false;
+      }
+    }
+
+    if (!isDbAvailable || !newDoc) {
       const docId = crypto.randomUUID();
       newDoc = {
         id: docId,
@@ -49,7 +63,11 @@ const createDocument = async (req, res) => {
         icon: docIcon,
         content: '',
         ownerId: userId,
-        owner: { id: req.user.id, name: req.user.name, email: req.user.email },
+        owner: {
+          id: userId,
+          name: req.user?.name || 'User',
+          email: req.user?.email || 'user@collabspace.com'
+        },
         collaborators: [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
@@ -72,41 +90,49 @@ const createDocument = async (req, res) => {
 };
 
 /**
- * Get all documents for the authenticated user (owned + collaborated)
+ * Get all documents for the authenticated user
  * GET /api/documents
  */
 const getDocuments = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user?.id || req.user?.userId;
     let docs = [];
 
-    try {
-      docs = await prisma.document.findMany({
-        where: {
-          OR: [
-            { ownerId: userId },
-            {
-              collaborators: {
-                some: { userId }
-              }
-            }
-          ]
-        },
-        include: {
-          owner: {
-            select: { id: true, name: true, email: true }
-          },
-          collaborators: {
+    if (isDbAvailable) {
+      try {
+        docs = await withDbTimeout(
+          prisma.document.findMany({
+            where: {
+              OR: [
+                { ownerId: userId },
+                {
+                  collaborators: {
+                    some: { userId }
+                  }
+                }
+              ]
+            },
             include: {
-              user: {
+              owner: {
                 select: { id: true, name: true, email: true }
+              },
+              collaborators: {
+                include: {
+                  user: {
+                    select: { id: true, name: true, email: true }
+                  }
+                }
               }
-            }
-          }
-        },
-        orderBy: { updatedAt: 'desc' }
-      });
-    } catch (dbErr) {
+            },
+            orderBy: { updatedAt: 'desc' }
+          })
+        );
+      } catch (dbErr) {
+        isDbAvailable = false;
+      }
+    }
+
+    if (!isDbAvailable) {
       docs = Array.from(memoryDocuments.values())
         .filter(doc => doc.ownerId === userId || (doc.collaborators && doc.collaborators.some(c => c.userId === userId)))
         .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
@@ -127,37 +153,39 @@ const getDocuments = async (req, res) => {
 };
 
 /**
- * Get single document by ID with collaborator and version relations
+ * Get a single document by ID
  * GET /api/documents/:id
  */
 const getDocumentById = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user.id;
+    const userId = req.user?.id || req.user?.userId;
 
     let doc = null;
 
-    try {
-      doc = await prisma.document.findUnique({
-        where: { id },
-        include: {
-          owner: {
-            select: { id: true, name: true, email: true }
-          },
-          collaborators: {
+    if (isDbAvailable) {
+      try {
+        doc = await withDbTimeout(
+          prisma.document.findUnique({
+            where: { id },
             include: {
-              user: {
+              owner: {
                 select: { id: true, name: true, email: true }
+              },
+              collaborators: {
+                include: {
+                  user: { select: { id: true, name: true, email: true } }
+                }
               }
             }
-          },
-          versions: {
-            orderBy: { createdAt: 'desc' },
-            take: 10
-          }
-        }
-      });
-    } catch (dbErr) {
+          })
+        );
+      } catch (dbErr) {
+        isDbAvailable = false;
+      }
+    }
+
+    if (!isDbAvailable) {
       doc = memoryDocuments.get(id) || null;
     }
 
@@ -168,14 +196,13 @@ const getDocumentById = async (req, res) => {
       });
     }
 
-    // Verify access: Owner or Collaborator
     const isOwner = doc.ownerId === userId;
     const isCollaborator = doc.collaborators && doc.collaborators.some(c => c.userId === userId);
 
     if (!isOwner && !isCollaborator) {
       return res.status(403).json({
         status: 'error',
-        message: 'Access denied. You do not have permission to view this document.'
+        message: 'Forbidden. You do not have permission to view this document.'
       });
     }
 
@@ -184,7 +211,7 @@ const getDocumentById = async (req, res) => {
       document: doc
     });
   } catch (error) {
-    console.error('Get Document By ID Controller Error:', error);
+    console.error('Get Document By ID Error:', error);
     return res.status(500).json({
       status: 'error',
       message: 'Failed to retrieve document details'
@@ -193,23 +220,31 @@ const getDocumentById = async (req, res) => {
 };
 
 /**
- * Update a document (title, icon, content) and optionally create version snapshot
+ * Update a document
  * PUT /api/documents/:id
  */
 const updateDocument = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, icon, content, createSnapshot } = req.body;
-    const userId = req.user.id;
+    const { title, icon, content } = req.body;
+    const userId = req.user?.id || req.user?.userId;
 
     let doc = null;
 
-    try {
-      doc = await prisma.document.findUnique({
-        where: { id },
-        include: { collaborators: true }
-      });
-    } catch (dbErr) {
+    if (isDbAvailable) {
+      try {
+        doc = await withDbTimeout(
+          prisma.document.findUnique({
+            where: { id },
+            include: { collaborators: true }
+          })
+        );
+      } catch (dbErr) {
+        isDbAvailable = false;
+      }
+    }
+
+    if (!isDbAvailable) {
       doc = memoryDocuments.get(id) || null;
     }
 
@@ -220,7 +255,6 @@ const updateDocument = async (req, res) => {
       });
     }
 
-    // Verify write permission: Owner or Editor/Admin Collaborator
     const isOwner = doc.ownerId === userId;
     const collaboration = doc.collaborators ? doc.collaborators.find(c => c.userId === userId) : null;
     const canEdit = isOwner || (collaboration && collaboration.role !== 'VIEWER');
@@ -241,32 +275,30 @@ const updateDocument = async (req, res) => {
 
     let updatedDoc = null;
 
-    try {
-      updatedDoc = await prisma.document.update({
-        where: { id },
-        data: updatedData,
-        include: {
-          owner: {
-            select: { id: true, name: true, email: true }
-          },
-          collaborators: {
+    if (isDbAvailable) {
+      try {
+        updatedDoc = await withDbTimeout(
+          prisma.document.update({
+            where: { id },
+            data: updatedData,
             include: {
-              user: { select: { id: true, name: true, email: true } }
+              owner: {
+                select: { id: true, name: true, email: true }
+              },
+              collaborators: {
+                include: {
+                  user: { select: { id: true, name: true, email: true } }
+                }
+              }
             }
-          }
-        }
-      });
-
-      if (createSnapshot && updatedData.content) {
-        await prisma.documentVersion.create({
-          data: {
-            title: `${updatedData.title} (Snapshot)`,
-            content: updatedData.content,
-            documentId: id
-          }
-        });
+          })
+        );
+      } catch (dbErr) {
+        isDbAvailable = false;
       }
-    } catch (dbErr) {
+    }
+
+    if (!isDbAvailable || !updatedDoc) {
       updatedDoc = {
         ...doc,
         ...updatedData,
@@ -281,7 +313,7 @@ const updateDocument = async (req, res) => {
       document: updatedDoc
     });
   } catch (error) {
-    console.error('Update Document Controller Error:', error);
+    console.error('Update Document Error:', error);
     return res.status(500).json({
       status: 'error',
       message: 'Failed to update document'
@@ -290,31 +322,31 @@ const updateDocument = async (req, res) => {
 };
 
 /**
- * Share document with a user by email
+ * Share a document with a teammate
  * POST /api/documents/:id/share
  */
 const shareDocument = async (req, res) => {
   try {
     const { id } = req.params;
-    const { email, role } = req.body;
-    const requesterId = req.user.id;
-
-    if (!email || !email.trim()) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Collaborator email is required'
-      });
-    }
-
-    const assignedRole = role === 'VIEWER' ? 'VIEWER' : 'EDITOR';
+    const { email, role = 'EDITOR' } = req.body;
+    const userId = req.user?.id || req.user?.userId;
 
     let doc = null;
-    try {
-      doc = await prisma.document.findUnique({
-        where: { id },
-        include: { owner: true }
-      });
-    } catch (dbErr) {
+
+    if (isDbAvailable) {
+      try {
+        doc = await withDbTimeout(
+          prisma.document.findUnique({
+            where: { id },
+            include: { owner: true, collaborators: { include: { user: true } } }
+          })
+        );
+      } catch (dbErr) {
+        isDbAvailable = false;
+      }
+    }
+
+    if (!isDbAvailable) {
       doc = memoryDocuments.get(id) || null;
     }
 
@@ -325,81 +357,90 @@ const shareDocument = async (req, res) => {
       });
     }
 
-    // Only owner can share document
-    if (doc.ownerId !== requesterId) {
+    if (doc.ownerId !== userId) {
       return res.status(403).json({
         status: 'error',
-        message: 'Forbidden. Only the document owner can manage collaborators.'
+        message: 'Only the document owner can share this document.'
       });
     }
 
-    // Check if trying to share with owner
-    if (doc.owner.email.toLowerCase() === email.toLowerCase().trim()) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'The document owner already has full access.'
-      });
-    }
-
+    const { memoryUsers } = require('./auth.controller');
     let targetUser = null;
-    try {
-      targetUser = await prisma.user.findUnique({
-        where: { email: email.toLowerCase().trim() }
-      });
-    } catch (dbErr) {
-      // Memory fallback target user
-      targetUser = {
-        id: crypto.randomUUID(),
-        name: email.split('@')[0],
-        email: email.toLowerCase().trim()
-      };
+
+    if (isDbAvailable) {
+      try {
+        targetUser = await withDbTimeout(
+          prisma.user.findUnique({
+            where: { email: email.toLowerCase().trim() },
+            select: { id: true, name: true, email: true }
+          })
+        );
+      } catch (dbErr) {
+        isDbAvailable = false;
+      }
+    }
+
+    if (!isDbAvailable) {
+      targetUser = memoryUsers.get(email.toLowerCase().trim()) || null;
     }
 
     if (!targetUser) {
       return res.status(404).json({
         status: 'error',
-        message: `No user found with email ${email}`
+        message: 'User with this email address was not found.'
+      });
+    }
+
+    if (targetUser.id === doc.ownerId) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'You are already the owner of this document.'
       });
     }
 
     let collaborator = null;
 
-    try {
-      collaborator = await prisma.collaborator.upsert({
-        where: {
-          userId_documentId: {
-            userId: targetUser.id,
-            documentId: id
-          }
-        },
-        update: {
-          role: assignedRole
-        },
-        create: {
-          userId: targetUser.id,
-          documentId: id,
-          role: assignedRole
-        },
-        include: {
-          user: {
-            select: { id: true, name: true, email: true }
-          }
-        }
-      });
-    } catch (dbErr) {
+    if (isDbAvailable) {
+      try {
+        collaborator = await withDbTimeout(
+          prisma.collaborator.upsert({
+            where: {
+              userId_documentId: {
+                userId: targetUser.id,
+                documentId: id
+              }
+            },
+            update: { role },
+            create: {
+              userId: targetUser.id,
+              documentId: id,
+              role
+            },
+            include: {
+              user: { select: { id: true, name: true, email: true } }
+            }
+          })
+        );
+      } catch (dbErr) {
+        isDbAvailable = false;
+      }
+    }
+
+    if (!isDbAvailable || !collaborator) {
+      const collabId = crypto.randomUUID();
       collaborator = {
-        id: crypto.randomUUID(),
+        id: collabId,
         userId: targetUser.id,
         documentId: id,
-        role: assignedRole,
-        user: targetUser,
+        role,
+        user: { id: targetUser.id, name: targetUser.name, email: targetUser.email },
         createdAt: new Date().toISOString()
       };
 
       if (!doc.collaborators) doc.collaborators = [];
       const existingIdx = doc.collaborators.findIndex(c => c.userId === targetUser.id);
       if (existingIdx >= 0) {
-        doc.collaborators[existingIdx] = collaborator;
+        doc.collaborators[existingIdx].role = role;
       } else {
         doc.collaborators.push(collaborator);
       }
@@ -408,11 +449,11 @@ const shareDocument = async (req, res) => {
 
     return res.status(200).json({
       status: 'success',
-      message: `Successfully shared with ${targetUser.name || email}`,
+      message: `Successfully shared document with ${targetUser.name}`,
       collaborator
     });
   } catch (error) {
-    console.error('Share Document Controller Error:', error);
+    console.error('Share Document Error:', error);
     return res.status(500).json({
       status: 'error',
       message: 'Failed to share document'
@@ -421,111 +462,132 @@ const shareDocument = async (req, res) => {
 };
 
 /**
- * Update a collaborator's role
+ * Update collaborator role
  * PATCH /api/documents/:id/collaborators/:userId
  */
 const updateCollaboratorRole = async (req, res) => {
   try {
     const { id, userId: targetUserId } = req.params;
     const { role } = req.body;
-    const requesterId = req.user.id;
-
-    const assignedRole = role === 'VIEWER' ? 'VIEWER' : 'EDITOR';
+    const requesterId = req.user?.id || req.user?.userId;
 
     let doc = null;
-    try {
-      doc = await prisma.document.findUnique({ where: { id } });
-    } catch (dbErr) {
+
+    if (isDbAvailable) {
+      try {
+        doc = await withDbTimeout(prisma.document.findUnique({ where: { id } }));
+      } catch (dbErr) {
+        isDbAvailable = false;
+      }
+    }
+
+    if (!isDbAvailable) {
       doc = memoryDocuments.get(id) || null;
     }
 
     if (!doc || doc.ownerId !== requesterId) {
       return res.status(403).json({
         status: 'error',
-        message: 'Forbidden. Only the document owner can update roles.'
+        message: 'Only the document owner can modify collaborator roles.'
       });
     }
 
-    let updatedCollaborator = null;
+    let updatedCollab = null;
 
-    try {
-      updatedCollaborator = await prisma.collaborator.update({
-        where: {
-          userId_documentId: {
-            userId: targetUserId,
-            documentId: id
-          }
-        },
-        data: { role: assignedRole },
-        include: {
-          user: { select: { id: true, name: true, email: true } }
-        }
-      });
-    } catch (dbErr) {
-      if (doc.collaborators) {
-        const c = doc.collaborators.find(col => col.userId === targetUserId);
-        if (c) {
-          c.role = assignedRole;
-          updatedCollaborator = c;
-        }
+    if (isDbAvailable) {
+      try {
+        updatedCollab = await withDbTimeout(
+          prisma.collaborator.update({
+            where: {
+              userId_documentId: {
+                userId: targetUserId,
+                documentId: id
+              }
+            },
+            data: { role },
+            include: { user: { select: { id: true, name: true, email: true } } }
+          })
+        );
+      } catch (dbErr) {
+        isDbAvailable = false;
+      }
+    }
+
+    if (!isDbAvailable || !updatedCollab) {
+      const collab = doc.collaborators?.find(c => c.userId === targetUserId);
+      if (collab) {
+        collab.role = role;
+        updatedCollab = collab;
       }
     }
 
     return res.status(200).json({
       status: 'success',
       message: 'Collaborator role updated',
-      collaborator: updatedCollaborator
+      collaborator: updatedCollab
     });
   } catch (error) {
-    console.error('Update Collaborator Role Error:', error);
+    console.error('Update Role Error:', error);
     return res.status(500).json({
       status: 'error',
-      message: 'Failed to update collaborator role'
+      message: 'Failed to update role'
     });
   }
 };
 
 /**
- * Remove a collaborator from document
+ * Remove collaborator
  * DELETE /api/documents/:id/collaborators/:userId
  */
 const removeCollaborator = async (req, res) => {
   try {
     const { id, userId: targetUserId } = req.params;
-    const requesterId = req.user.id;
+    const requesterId = req.user?.id || req.user?.userId;
 
     let doc = null;
-    try {
-      doc = await prisma.document.findUnique({ where: { id } });
-    } catch (dbErr) {
+
+    if (isDbAvailable) {
+      try {
+        doc = await withDbTimeout(prisma.document.findUnique({ where: { id } }));
+      } catch (dbErr) {
+        isDbAvailable = false;
+      }
+    }
+
+    if (!isDbAvailable) {
       doc = memoryDocuments.get(id) || null;
     }
 
-    // Owner or user removing themselves
-    const isOwner = doc && doc.ownerId === requesterId;
-    const isSelf = requesterId === targetUserId;
+    const isOwner = doc?.ownerId === requesterId;
+    const isSelf = targetUserId === requesterId;
 
     if (!isOwner && !isSelf) {
       return res.status(403).json({
         status: 'error',
-        message: 'Forbidden. You do not have permission to remove this collaborator.'
+        message: 'You do not have permission to remove this collaborator.'
       });
     }
 
-    try {
-      await prisma.collaborator.delete({
-        where: {
-          userId_documentId: {
-            userId: targetUserId,
-            documentId: id
-          }
-        }
-      });
-    } catch (dbErr) {
-      if (doc && doc.collaborators) {
-        doc.collaborators = doc.collaborators.filter(c => c.userId !== targetUserId);
-        memoryDocuments.set(id, doc);
+    if (isDbAvailable) {
+      try {
+        await withDbTimeout(
+          prisma.collaborator.delete({
+            where: {
+              userId_documentId: {
+                userId: targetUserId,
+                documentId: id
+              }
+            }
+          })
+        );
+      } catch (dbErr) {
+        isDbAvailable = false;
       }
+    }
+
+    if (!isDbAvailable && doc) {
+      doc.collaborators = doc.collaborators?.filter(c => c.userId !== targetUserId) || [];
+      memoryDocuments.set(id, doc);
     }
 
     return res.status(200).json({
@@ -548,15 +610,19 @@ const removeCollaborator = async (req, res) => {
 const deleteDocument = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user.id;
+    const userId = req.user?.id || req.user?.userId;
 
     let doc = null;
 
-    try {
-      doc = await prisma.document.findUnique({
-        where: { id }
-      });
-    } catch (dbErr) {
+    if (isDbAvailable) {
+      try {
+        doc = await withDbTimeout(prisma.document.findUnique({ where: { id } }));
+      } catch (dbErr) {
+        isDbAvailable = false;
+      }
+    }
+
+    if (!isDbAvailable) {
       doc = memoryDocuments.get(id) || null;
     }
 
@@ -570,15 +636,19 @@ const deleteDocument = async (req, res) => {
     if (doc.ownerId !== userId) {
       return res.status(403).json({
         status: 'error',
-        message: 'Forbidden. Only the owner can delete this document.'
+        message: 'Only the document owner can delete this document.'
       });
     }
 
-    try {
-      await prisma.document.delete({
-        where: { id }
-      });
-    } catch (dbErr) {
+    if (isDbAvailable) {
+      try {
+        await withDbTimeout(prisma.document.delete({ where: { id } }));
+      } catch (dbErr) {
+        isDbAvailable = false;
+      }
+    }
+
+    if (!isDbAvailable) {
       memoryDocuments.delete(id);
     }
 
@@ -587,7 +657,7 @@ const deleteDocument = async (req, res) => {
       message: 'Document deleted successfully'
     });
   } catch (error) {
-    console.error('Delete Document Controller Error:', error);
+    console.error('Delete Document Error:', error);
     return res.status(500).json({
       status: 'error',
       message: 'Failed to delete document'

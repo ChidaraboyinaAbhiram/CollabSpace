@@ -61,10 +61,11 @@ This roadmap outlines the milestones and features we will build week-by-week.
 - [x] Implement threaded discussion replies and thread resolution status
 - [x] Sync comments live over WebSockets with floating highlight triggers
 
-## 📜 Sprint 9: Version History & Restoration (Pending)
-- [ ] Create document version history database schema
-- [ ] Implement snapshot saving endpoint
-- [ ] Build version panel UI in frontend for viewing and restoring history
+## 📜 Sprint 9: Version History & Restoration (Completed)
+- [x] Create document version history database schema with author attribution
+- [x] Implement snapshot saving, listing, and preview REST APIs
+- [x] Build VersionHistoryDrawer with timeline navigator and read-only preview pane
+- [x] Implement point-in-time restoration with automated safety backups and live sync
 
 ## 🚀 Sprint 10: Redis Caching & Session Storage (Pending)
 - [ ] Integrate Redis on the backend

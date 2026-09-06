@@ -6,6 +6,7 @@ import 'react-quill-new/dist/quill.snow.css';
 import { DocumentProvider, useDocument } from '../context/DocumentContext';
 import { getSocket } from '../services/socket.service';
 import * as commentService from '../services/comment.service';
+import * as versionService from '../services/version.service';
 
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
@@ -14,6 +15,7 @@ import ShareModal from '../components/ShareModal';
 import CursorOverlay from '../components/CursorOverlay';
 import TypingIndicator from '../components/TypingIndicator';
 import CommentSidebar from '../components/CommentSidebar';
+import VersionHistoryDrawer from '../components/VersionHistoryDrawer';
 
 function EditorInner() {
   const { id } = useParams();
@@ -38,6 +40,7 @@ function EditorInner() {
   const [showIconPicker, setShowIconPicker] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isCommentSidebarOpen, setIsCommentSidebarOpen] = useState(false);
+  const [isVersionDrawerOpen, setIsVersionDrawerOpen] = useState(false);
 
   // Presence & Cursors
   const [activeUsers, setActiveUsers] = useState([]);
@@ -46,8 +49,11 @@ function EditorInner() {
 
   // Comments & Highlights
   const [comments, setComments] = useState([]);
-  const [floatingTooltip, setFloatingTooltip] = useState(null); // { top, left, text, range }
+  const [floatingTooltip, setFloatingTooltip] = useState(null);
   const [pendingHighlight, setPendingHighlight] = useState(null);
+
+  // Version History
+  const [versions, setVersions] = useState([]);
 
   const quillRef = useRef(null);
   const socketRef = useRef(null);
@@ -55,16 +61,22 @@ function EditorInner() {
 
   const availableIcons = ['📄', '📝', '💡', '🚀', '📊', '🎯', '💻', '📚', '⚡', '🛠️', '✨', '🔥'];
 
-  // 1. Fetch Comments
+  // 1. Fetch Comments & Version History
   useEffect(() => {
     if (!id) return;
+
     commentService
       .getComments(id)
       .then(setComments)
       .catch((err) => console.warn('Failed to fetch comments:', err.message));
+
+    versionService
+      .getVersions(id)
+      .then(setVersions)
+      .catch((err) => console.warn('Failed to fetch versions:', err.message));
   }, [id]);
 
-  // 2. Socket Lifecycle: Presence, Deltas, Cursors, Typing & Real-Time Comments
+  // 2. Socket Lifecycle: Presence, Deltas, Cursors, Typing, Comments & Version Sync
   useEffect(() => {
     const socket = getSocket();
     if (!socket || !id) return;
@@ -124,7 +136,7 @@ function EditorInner() {
       setTypingUsers((prev) => prev.filter((u) => u.userId !== userId));
     };
 
-    // Real-Time Comment Listeners
+    // Real-Time Comments
     const handleCommentAdded = (newComment) => {
       setComments((prev) => {
         if (newComment.parentId) {
@@ -152,6 +164,21 @@ function EditorInner() {
       setComments((prev) => prev.filter((c) => c.id !== commentId));
     };
 
+    // Real-Time Version & Document Restoration
+    const handleVersionCreated = (version) => {
+      setVersions((prev) => [version, ...prev]);
+    };
+
+    const handleDocumentRestored = (restoredDoc) => {
+      updateTitle(restoredDoc.title);
+      updateContent(restoredDoc.content || '');
+      if (quillRef.current) {
+        const editor = quillRef.current.getEditor();
+        editor.setText('');
+        editor.clipboard.dangerouslyPasteHTML(0, restoredDoc.content || '');
+      }
+    };
+
     socket.on('document-presence', handlePresence);
     socket.on('receive-changes', handleReceiveChanges);
     socket.on('user-joined', handleUserJoined);
@@ -163,6 +190,8 @@ function EditorInner() {
     socket.on('comment-added', handleCommentAdded);
     socket.on('comment-resolved', handleCommentResolved);
     socket.on('comment-deleted', handleCommentDeleted);
+    socket.on('version-created', handleVersionCreated);
+    socket.on('document-restored', handleDocumentRestored);
 
     return () => {
       socket.emit('leave-document', id);
@@ -177,10 +206,12 @@ function EditorInner() {
       socket.off('comment-added', handleCommentAdded);
       socket.off('comment-resolved', handleCommentResolved);
       socket.off('comment-deleted', handleCommentDeleted);
+      socket.off('version-created', handleVersionCreated);
+      socket.off('document-restored', handleDocumentRestored);
     };
-  }, [id]);
+  }, [id, updateTitle, updateContent]);
 
-  // 3. Quill Text-Change & Selection-Change (with Floating Highlight Tooltip)
+  // 3. Quill Text-Change & Selection-Change (with Highlight Tooltip)
   useEffect(() => {
     if (!quillRef.current) return;
     const editor = quillRef.current.getEditor();
@@ -207,12 +238,10 @@ function EditorInner() {
         return;
       }
 
-      // Broadcast cursor move
       if (socketRef.current && id) {
         socketRef.current.emit('cursor-move', { documentId: id, range });
       }
 
-      // Detect highlighted text range
       if (range.length > 0) {
         const text = editor.getText(range.index, range.length).trim();
         if (text) {
@@ -242,7 +271,7 @@ function EditorInner() {
     };
   }, [id]);
 
-  // 4. Comment Handlers
+  // 4. Comment Actions
   const handleAddComment = async (commentData) => {
     const created = await commentService.createComment(id, commentData);
     setComments((prev) => {
@@ -301,6 +330,40 @@ function EditorInner() {
 
     if (socketRef.current) {
       socketRef.current.emit('delete-comment', { documentId: id, commentId });
+    }
+  };
+
+  // 5. Version History Actions
+  const handleCreateSnapshot = async (versionName) => {
+    const created = await versionService.createVersion(id, versionName);
+    setVersions((prev) => [created, ...prev]);
+
+    if (socketRef.current) {
+      socketRef.current.emit('version-created', { documentId: id, version: created });
+    }
+  };
+
+  const handleRestoreVersion = async (versionId) => {
+    const res = await versionService.restoreVersion(id, versionId);
+    if (res.document) {
+      updateTitle(res.document.title);
+      updateContent(res.document.content || '');
+      if (quillRef.current) {
+        const editor = quillRef.current.getEditor();
+        editor.setText('');
+        editor.clipboard.dangerouslyPasteHTML(0, res.document.content || '');
+      }
+
+      if (socketRef.current) {
+        socketRef.current.emit('restore-document', {
+          documentId: id,
+          document: res.document
+        });
+      }
+
+      // Refresh versions to include pre-restore backup
+      const updatedVersions = await versionService.getVersions(id);
+      setVersions(updatedVersions);
     }
   };
 
@@ -419,8 +482,8 @@ function EditorInner() {
           />
         </div>
 
-        {/* Right: Presence Avatars, Comments Toggle, Save Status, Share Button */}
-        <div className="flex items-center gap-3.5">
+        {/* Right: Presence Avatars, Comments, History, Save Status, Share */}
+        <div className="flex items-center gap-3">
           {/* Active Online Users Avatars Stack */}
           <div className="hidden lg:flex items-center -space-x-2">
             <div className="relative" title={`${owner.name} (Owner)`}>
@@ -440,6 +503,21 @@ function EditorInner() {
           <div className="hidden md:flex items-center gap-2 text-xs text-gray-400 bg-dark-800/60 border border-white/5 px-3 py-1.5 rounded-xl font-mono">
             <span>{words} words</span>
           </div>
+
+          {/* Version History Button */}
+          <button
+            onClick={() => setIsVersionDrawerOpen(true)}
+            title="View Version History"
+            className="px-3 py-1.5 bg-dark-800 hover:bg-white/5 border border-white/10 rounded-xl text-gray-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
+          >
+            <span>📜</span>
+            <span className="hidden sm:inline">History</span>
+            {versions.length > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full bg-dark-700 text-gray-400 text-[10px] font-mono">
+                {versions.length}
+              </span>
+            )}
+          </button>
 
           {/* Comments Toggle Button */}
           <button
@@ -524,6 +602,15 @@ function EditorInner() {
         {/* Live Floating Typing Indicator */}
         <TypingIndicator typingUsers={typingUsers} />
       </main>
+
+      {/* Version History Drawer */}
+      <VersionHistoryDrawer
+        isOpen={isVersionDrawerOpen}
+        onClose={() => setIsVersionDrawerOpen(false)}
+        versions={versions}
+        onCreateSnapshot={handleCreateSnapshot}
+        onRestoreVersion={handleRestoreVersion}
+      />
 
       {/* Comments Sidebar Panel */}
       <CommentSidebar
