@@ -91,7 +91,8 @@ This roadmap outlines the milestones and features we will build week-by-week.
 - [x] Set up docker-compose.yml for PostgreSQL 16, Redis 7, Server, and Client
 - [x] Write GitHub Actions CI/CD workflows (.github/workflows/ci.yml)
 
-## 🎓 Sprint 14: System Design & Interview Preparation (Pending)
-- [ ] Conduct overall system design review and scaling architecture summary
-- [ ] Prepare technical resume bullet points for CollabSpace
-- [ ] Comprehensive mock technical interview covering project architecture
+## 🎓 Sprint 14: System Design & Interview Preparation (Completed)
+- [x] Conduct overall system design review and scaling architecture summary
+- [x] Prepare technical resume bullet points for CollabSpace
+- [x] Comprehensive mock technical interview covering project architecture
+- [x] Consolidate, audit, and organize all sprint guides in `sprints/` folder
