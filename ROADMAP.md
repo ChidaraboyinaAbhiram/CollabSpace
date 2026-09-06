@@ -85,12 +85,13 @@ This roadmap outlines the milestones and features we will build week-by-week.
 - [x] Build multi-client WebSocket connection mocks and real-time sync tests
 - [x] Implement master automated test runner (`npm test`) with 100% pass rate
 
-## 🐳 Sprint 13: Docker & Deployment (Pending)
-- [ ] Dockerize backend and frontend applications
-- [ ] Set up docker-compose for PostgreSQL, Redis, and APIs
-- [ ] Write basic Github Actions CI/CD workflows
+## 🐳 Sprint 13: Docker & Deployment (Completed)
+- [x] Dockerize backend with multi-stage Node.js Alpine image & Prisma generation
+- [x] Dockerize frontend with Nginx SPA history fallback and gzip compression
+- [x] Set up docker-compose.yml for PostgreSQL 16, Redis 7, Server, and Client
+- [x] Write GitHub Actions CI/CD workflows (.github/workflows/ci.yml)
 
 ## 🎓 Sprint 14: System Design & Interview Preparation (Pending)
-- [ ] Conduct overall system design review and scaling exercises
+- [ ] Conduct overall system design review and scaling architecture summary
 - [ ] Prepare technical resume bullet points for CollabSpace
-- [ ] Conduct mock technical interview covering project details
+- [ ] Comprehensive mock technical interview covering project architecture

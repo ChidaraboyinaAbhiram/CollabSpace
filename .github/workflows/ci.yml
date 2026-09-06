@@ -1,0 +1,94 @@
+name: CollabSpace CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # Backend Testing Job
+  test-server:
+    name: Backend API & WebSocket Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: collabspace
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install Server Dependencies
+        working-directory: ./server
+        run: npm ci
+
+      - name: Generate Prisma Client & Push Schema
+        working-directory: ./server
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/collabspace?schema=public
+        run: |
+          npx prisma generate
+          npx prisma db push --skip-generate
+
+      - name: Run Master Automated Test Suite
+        working-directory: ./server
+        env:
+          PORT: 5000
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/collabspace?schema=public
+          REDIS_URL: redis://localhost:6379
+          JWT_SECRET: ci_pipeline_super_secret_jwt_key_2026
+        run: npm test
+
+  # Frontend Build & Verification Job
+  build-client:
+    name: Frontend Code Splitting & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install Client Dependencies
+        working-directory: ./client
+        run: npm ci
+
+      - name: Build Production Client SPA
+        working-directory: ./client
+        run: npm run build

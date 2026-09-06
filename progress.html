@@ -560,10 +560,10 @@
       <div class="badge-container">
         <div class="badge badge-primary">
           <span class="pulse-indicator"></span>
-          <span>Sprint 13: Docker & CI/CD</span>
+          <span>Sprint 14: System Design & Final Wrap</span>
         </div>
         <div class="badge badge-success">
-          <span>Sprint 12 Complete</span>
+          <span>Sprint 13 Complete</span>
         </div>
       </div>
     </header>
@@ -578,21 +578,21 @@
               <circle class="circle-bg" cx="70" cy="70" r="64" />
               <circle id="progressCircle" class="circle-fill" cx="70" cy="70" r="64" />
             </svg>
-            <div id="progressPercent" class="percentage-text">86.7%</div>
+            <div id="progressPercent" class="percentage-text">93.3%</div>
           </div>
           <div>
             <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; margin-bottom: 0.5rem;">Overall Project Progress</h2>
             <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
-              Sprint 12 (Testing & Quality Assurance) is completed! You have built a master automated integration test runner across 5 comprehensive test suites covering Auth, Documents, Cache-Aside, Comments, Version Restoration, and Real-Time WebSocket presence with 100% test pass rate.
+              Sprint 13 (Docker & Deployment) is completed! You have built multi-stage production Dockerfiles for Node.js and Nginx, orchestrating PostgreSQL 16, Redis 7, Server, and Client through docker-compose.yml with automated GitHub Actions CI/CD pipelines.
             </p>
             <div class="progress-stats-grid">
               <div class="stat-box">
                 <div class="stat-label">Current Sprint</div>
-                <div class="stat-val">Sprint 13</div>
+                <div class="stat-val">Sprint 14</div>
               </div>
               <div class="stat-box">
                 <div class="stat-label">Commits</div>
-                <div id="commitCount" class="stat-val">14</div>
+                <div id="commitCount" class="stat-val">15</div>
               </div>
             </div>
           </div>
@@ -601,44 +601,37 @@
         <!-- Current Sprint Tasks -->
         <div class="card">
           <div class="tasks-header">
-            <h2>Sprint 12 Tasks Checklist (Completed)</h2>
-            <span style="font-size: 0.85rem; color: var(--text-muted);" id="taskRatio">5/5 Completed</span>
+            <h2>Sprint 13 Tasks Checklist (Completed)</h2>
+            <span style="font-size: 0.85rem; color: var(--text-muted);" id="taskRatio">4/4 Completed</span>
           </div>
           <div class="task-list">
             <div class="task-item completed">
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Build Authentication & Security integration tests (register, login, JWT verification)</div>
-              <span class="task-tag tag-setup">auth qa</span>
+              <div class="task-text">Write multi-stage Dockerfile for Node.js API with Prisma client generation</div>
+              <span class="task-tag tag-setup">server docker</span>
             </div>
             <div class="task-item completed">
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Build Document CRUD, Sharing, and Cache-Aside verification test suite</div>
-              <span class="task-tag tag-feat">doc qa</span>
+              <div class="task-text">Write multi-stage Dockerfile for Client with Nginx SPA history fallback & gzip</div>
+              <span class="task-tag tag-feat">client docker</span>
             </div>
             <div class="task-item completed">
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Build Comment highlight anchoring, threaded replies, and resolution tests</div>
-              <span class="task-tag tag-feat">comments qa</span>
+              <div class="task-text">Orchestrate 4 services in docker-compose.yml with healthchecks and network bridge</div>
+              <span class="task-tag tag-feat">compose</span>
             </div>
             <div class="task-item completed">
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Build Version History timeline and point-in-time restoration test suite</div>
-              <span class="task-tag tag-feat">versions qa</span>
-            </div>
-            <div class="task-item completed">
-              <div class="task-checkbox">
-                <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-              </div>
-              <div class="task-text">Implement multi-client WebSocket mock testing (deltas, cursors, presence)</div>
-              <span class="task-tag tag-feat">socket qa</span>
+              <div class="task-text">Implement GitHub Actions CI/CD matrix pipeline (.github/workflows/ci.yml)</div>
+              <span class="task-tag tag-feat">ci/cd</span>
             </div>
           </div>
         </div>
@@ -792,23 +785,23 @@
               <div class="sprint-indicator">✓</div>
               <div class="sprint-details">
                 <div>
-                  <div class="sprint-title">Testing & QA</div>
-                  <div class="sprint-subtitle">Sprint 12 • Completed</div>
+                  <div class="sprint-title">Docker & Deployment</div>
+                  <div class="sprint-subtitle">Sprint 13 • Completed</div>
                 </div>
                 <span class="sprint-status-tag">Done</span>
               </div>
             </div>
             <div class="sprint-node active">
-              <div class="sprint-indicator">13</div>
+              <div class="sprint-indicator">14</div>
               <div class="sprint-details">
                 <div>
-                  <div class="sprint-title">Docker & Deployment</div>
-                  <div class="sprint-subtitle">Sprint 13 • Active</div>
+                  <div class="sprint-title">System Design & Interview</div>
+                  <div class="sprint-subtitle">Sprint 14 • Active</div>
                 </div>
                 <span class="sprint-status-tag">Active</span>
               </div>
             </div>
-            <p style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding-top: 0.5rem;">Sprint 14 locked in pipeline</p>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding-top: 0.5rem;">Sprint 14 Final Milestone</p>
           </div>
         </div>
 
@@ -816,12 +809,12 @@
         <div class="card">
           <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; margin-bottom: 0.75rem;">Skills Acquired</h2>
           <div class="skills-grid">
-            <div class="skill-tag">Integration Testing</div>
-            <div class="skill-tag">WebSocket Mocking</div>
-            <div class="skill-tag">JWT Security Testing</div>
-            <div class="skill-tag">Cache Validation Tests</div>
-            <div class="skill-tag">Regression Prevention</div>
-            <div class="skill-tag">Continuous QA Harness</div>
+            <div class="skill-tag">Multi-Stage Docker</div>
+            <div class="skill-tag">Nginx SPA Reverse Proxy</div>
+            <div class="skill-tag">Docker Compose Healthchecks</div>
+            <div class="skill-tag">CI/CD GitHub Actions</div>
+            <div class="skill-tag">Alpine Image Optimization</div>
+            <div class="skill-tag">Container Networking</div>
           </div>
         </div>
 
@@ -829,12 +822,12 @@
         <div class="card">
           <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; margin-bottom: 1rem;">Interview Review Topics</h2>
           <div class="qa-item">
-            <div class="qa-question">How do you test WebSockets in CI/CD?</div>
-            <div class="qa-answer">By instantiating dual headless socket clients over HTTP/WS loopback and asserting cross-client event broadcasts, room filtering, and connection lifecycles.</div>
+            <div class="qa-question">Why use multi-stage Docker builds?</div>
+            <div class="qa-answer">To keep the runtime image extremely lean by discarding build toolchains (Node compilers, devDependencies), dramatically speeding up deployments and shrinking security surface.</div>
           </div>
           <div class="qa-item">
-            <div class="qa-question">Why use integration tests alongside unit tests?</div>
-            <div class="qa-answer">Unit tests verify pure functions, but integration tests verify database constraints, JWT middleware pipelines, and cache invalidation side-effects.</div>
+            <div class="qa-question">How does Docker Compose healthcheck prevent boot race conditions?</div>
+            <div class="qa-answer">Using condition: service_healthy ensures backend containers wait until PostgreSQL and Redis pass ping probes before attempting connections.</div>
           </div>
         </div>
       </div>
@@ -845,8 +838,8 @@
     const TOTAL_SPRINTS = 15;
     
     function updateProgress() {
-      // 13 out of 15 Sprints fully completed = 86.7%
-      const totalProgressPercent = Math.round((13 / TOTAL_SPRINTS) * 100);
+      // 14 out of 15 Sprints fully completed = 93.3%
+      const totalProgressPercent = Math.round((14 / TOTAL_SPRINTS) * 100);
       
       document.getElementById('progressPercent').innerText = `${totalProgressPercent}%`;
       
