@@ -7,6 +7,31 @@ const prisma = require('../config/db');
 const memoryUsers = new Map();
 let isDbAvailable = true;
 
+// Pre-seed default demo accounts for instant local testing
+const defaultPasswordHash = bcrypt.hashSync('SecurePassword123!', 10);
+const simplePasswordHash = bcrypt.hashSync('password123', 10);
+
+const alexDemo = {
+  id: 'user-alex-demo-001',
+  name: 'Alex Mercer',
+  email: 'alex@collabspace.com',
+  password: defaultPasswordHash,
+  altPassword: simplePasswordHash,
+  createdAt: new Date().toISOString()
+};
+
+const sarahDemo = {
+  id: 'user-sarah-demo-002',
+  name: 'Sarah Connor',
+  email: 'sarah@collabspace.com',
+  password: defaultPasswordHash,
+  altPassword: simplePasswordHash,
+  createdAt: new Date().toISOString()
+};
+
+memoryUsers.set('alex@collabspace.com', alexDemo);
+memoryUsers.set('sarah@collabspace.com', sarahDemo);
+
 const withDbTimeout = (promise, ms = 400) => {
   return Promise.race([
     promise,
@@ -184,7 +209,8 @@ const login = async (req, res) => {
       });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = (await bcrypt.compare(password, user.password)) ||
+      (user.altPassword ? await bcrypt.compare(password, user.altPassword) : false);
 
     if (!isPasswordValid) {
       return res.status(401).json({

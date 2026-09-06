@@ -8,6 +8,38 @@ const memoryCollaborators = new Map();
 const memoryVersions = new Map();
 let isDbAvailable = true;
 
+// Pre-seed demo documents for Alex and Sarah
+const docDemo1 = {
+  id: 'doc-arch-001',
+  title: 'CollabSpace System Architecture',
+  icon: '🚀',
+  content: '<h1>CollabSpace System Architecture</h1><p>Welcome to CollabSpace! Start editing in real-time with collaborators.</p>',
+  ownerId: 'user-alex-demo-001',
+  owner: { id: 'user-alex-demo-001', name: 'Alex Mercer', email: 'alex@collabspace.com' },
+  collaborators: [
+    { userId: 'user-sarah-demo-002', role: 'EDITOR', user: { id: 'user-sarah-demo-002', name: 'Sarah Connor', email: 'sarah@collabspace.com' } }
+  ],
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString()
+};
+
+const docDemo2 = {
+  id: 'doc-notes-002',
+  title: 'Engineering Best Practices & Sprint Notes',
+  icon: '📚',
+  content: '<h2>Team Notes</h2><p>Real-time collaboration enabled with live cursors, typing indicators, and comments.</p>',
+  ownerId: 'user-sarah-demo-002',
+  owner: { id: 'user-sarah-demo-002', name: 'Sarah Connor', email: 'sarah@collabspace.com' },
+  collaborators: [
+    { userId: 'user-alex-demo-001', role: 'EDITOR', user: { id: 'user-alex-demo-001', name: 'Alex Mercer', email: 'alex@collabspace.com' } }
+  ],
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString()
+};
+
+memoryDocuments.set(docDemo1.id, docDemo1);
+memoryDocuments.set(docDemo2.id, docDemo2);
+
 const withDbTimeout = (promise, ms = 800) => {
   return Promise.race([
     promise,
