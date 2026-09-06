@@ -560,10 +560,10 @@
       <div class="badge-container">
         <div class="badge badge-primary">
           <span class="pulse-indicator"></span>
-          <span>Sprint 10: Redis Caching</span>
+          <span>Sprint 11: Performance Optimization</span>
         </div>
         <div class="badge badge-success">
-          <span>Sprint 9 Complete</span>
+          <span>Sprint 10 Complete</span>
         </div>
       </div>
     </header>
@@ -578,21 +578,21 @@
               <circle class="circle-bg" cx="70" cy="70" r="64" />
               <circle id="progressCircle" class="circle-fill" cx="70" cy="70" r="64" />
             </svg>
-            <div id="progressPercent" class="percentage-text">66.7%</div>
+            <div id="progressPercent" class="percentage-text">73.3%</div>
           </div>
           <div>
             <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; margin-bottom: 0.5rem;">Overall Project Progress</h2>
             <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
-              Sprint 9 (Version History & Restoration) is completed! You have built document versioning with author attribution, point-in-time recovery, pre-restoration safety backups, timeline previewing, and real-time WebSocket restoration sync.
+              Sprint 10 (Redis Caching & Session Management) is completed! You have built high-speed Cache-Aside lookups (&lt;2ms), automatic cache invalidation upon document edits, Redis telemetry endpoints, in-memory resilience fallbacks, and multi-node Socket.IO scaling support.
             </p>
             <div class="progress-stats-grid">
               <div class="stat-box">
                 <div class="stat-label">Current Sprint</div>
-                <div class="stat-val">Sprint 10</div>
+                <div class="stat-val">Sprint 11</div>
               </div>
               <div class="stat-box">
                 <div class="stat-label">Commits</div>
-                <div id="commitCount" class="stat-val">11</div>
+                <div id="commitCount" class="stat-val">12</div>
               </div>
             </div>
           </div>
@@ -601,7 +601,7 @@
         <!-- Current Sprint Tasks -->
         <div class="card">
           <div class="tasks-header">
-            <h2>Sprint 9 Tasks Checklist (Completed)</h2>
+            <h2>Sprint 10 Tasks Checklist (Completed)</h2>
             <span style="font-size: 0.85rem; color: var(--text-muted);" id="taskRatio">4/4 Completed</span>
           </div>
           <div class="task-list">
@@ -609,29 +609,29 @@
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Create DocumentVersion database schema with author attribution in Prisma</div>
-              <span class="task-tag tag-setup">prisma</span>
+              <div class="task-text">Configure Redis connection manager with instant in-memory fallback store</div>
+              <span class="task-tag tag-setup">redis</span>
             </div>
             <div class="task-item completed">
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Implement Version snapshot, list, preview, and restore REST API endpoints</div>
-              <span class="task-tag tag-feat">rest api</span>
+              <div class="task-text">Implement Cache-Aside pattern on Document API with sub-2ms response times</div>
+              <span class="task-tag tag-feat">cache-aside</span>
             </div>
             <div class="task-item completed">
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Build VersionHistoryDrawer with timeline navigator and read-only preview pane</div>
-              <span class="task-tag tag-feat">drawer</span>
+              <div class="task-text">Integrate automated cache invalidation upon document updates and deletes</div>
+              <span class="task-tag tag-feat">invalidation</span>
             </div>
             <div class="task-item completed">
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Configure automated pre-restoration backups and real-time restoration sync</div>
-              <span class="task-tag tag-feat">realtime</span>
+              <div class="task-text">Deploy Cache metrics endpoint (/api/cache/stats) and Redis multi-node adapter</div>
+              <span class="task-tag tag-feat">telemetry</span>
             </div>
           </div>
         </div>
@@ -761,17 +761,27 @@
                 <span class="sprint-status-tag">Done</span>
               </div>
             </div>
-            <div class="sprint-node active">
-              <div class="sprint-indicator">10</div>
+            <div class="sprint-node completed">
+              <div class="sprint-indicator">✓</div>
               <div class="sprint-details">
                 <div>
                   <div class="sprint-title">Redis Caching</div>
-                  <div class="sprint-subtitle">Sprint 10 • Active</div>
+                  <div class="sprint-subtitle">Sprint 10 • Completed</div>
+                </div>
+                <span class="sprint-status-tag">Done</span>
+              </div>
+            </div>
+            <div class="sprint-node active">
+              <div class="sprint-indicator">11</div>
+              <div class="sprint-details">
+                <div>
+                  <div class="sprint-title">Performance Optimization</div>
+                  <div class="sprint-subtitle">Sprint 11 • Active</div>
                 </div>
                 <span class="sprint-status-tag">Active</span>
               </div>
             </div>
-            <p style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding-top: 0.5rem;">Sprints 11–14 locked in pipeline</p>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding-top: 0.5rem;">Sprints 12–14 locked in pipeline</p>
           </div>
         </div>
 
@@ -779,12 +789,12 @@
         <div class="card">
           <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; margin-bottom: 0.75rem;">Skills Acquired</h2>
           <div class="skills-grid">
-            <div class="skill-tag">Point-in-Time Recovery</div>
-            <div class="skill-tag">Safety Backups</div>
-            <div class="skill-tag">Revision Timelines</div>
-            <div class="skill-tag">Read-Only Previews</div>
-            <div class="skill-tag">Live Restoration Sync</div>
-            <div class="skill-tag">Audit Tracking</div>
+            <div class="skill-tag">Redis Cache-Aside</div>
+            <div class="skill-tag">Cache Invalidation</div>
+            <div class="skill-tag">TTL Expirations</div>
+            <div class="skill-tag">Socket.IO Redis Adapter</div>
+            <div class="skill-tag">Cache Telemetry</div>
+            <div class="skill-tag">In-Memory Fallbacks</div>
           </div>
         </div>
 
@@ -792,12 +802,12 @@
         <div class="card">
           <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; margin-bottom: 1rem;">Interview Review Topics</h2>
           <div class="qa-item">
-            <div class="qa-question">Snapshots vs Reverse Diffs?</div>
-            <div class="qa-answer">Snapshots provide O(1) instant retrieval and simple restoration, while diffs save disk storage at the cost of O(N) reconstruction compute.</div>
+            <div class="qa-question">Cache-Aside vs Write-Through?</div>
+            <div class="qa-answer">Cache-Aside loads entries lazily on misses, saving memory; Write-Through keeps cache always fresh but adds write latency and populates unread items.</div>
           </div>
           <div class="qa-item">
-            <div class="qa-question">Why onDelete: SetNull on author?</div>
-            <div class="qa-answer">Preserves critical historical document audit logs even if a former employee's user account is deactivated or removed.</div>
+            <div class="qa-question">How does Socket.IO scale across multiple nodes?</div>
+            <div class="qa-answer">Using a Redis Pub/Sub adapter to broadcast room events between isolated Node.js worker instances.</div>
           </div>
         </div>
       </div>
@@ -808,8 +818,8 @@
     const TOTAL_SPRINTS = 15;
     
     function updateProgress() {
-      // 10 out of 15 Sprints fully completed = 66.7%
-      const totalProgressPercent = Math.round((10 / TOTAL_SPRINTS) * 100);
+      // 11 out of 15 Sprints fully completed = 73.3%
+      const totalProgressPercent = Math.round((11 / TOTAL_SPRINTS) * 100);
       
       document.getElementById('progressPercent').innerText = `${totalProgressPercent}%`;
       

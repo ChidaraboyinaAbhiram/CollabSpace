@@ -22,14 +22,28 @@ function getColorForUser(userId = '') {
   }
   return USER_COLORS[Math.abs(hash) % USER_COLORS.length];
 }
-
 function initSocket(httpServer) {
+  let adapter = undefined;
+  try {
+    const { createAdapter } = require('@socket.io/redis-adapter');
+    const { redisClient, isRedisConnected } = require('../config/redis');
+    if (isRedisConnected() && redisClient) {
+      const pubClient = redisClient;
+      const subClient = pubClient.duplicate();
+      adapter = createAdapter(pubClient, subClient);
+      console.log('⚡ Socket.IO Redis Adapter active for horizontal multi-node scaling');
+    }
+  } catch (e) {
+    // Continue with default memory adapter
+  }
+
   io = new Server(httpServer, {
     cors: {
       origin: ['http://localhost:5173', 'http://localhost:3000'],
       methods: ['GET', 'POST', 'PUT', 'DELETE'],
       credentials: true
-    }
+    },
+    ...(adapter ? { adapter } : {})
   });
 
   // JWT Handshake Authentication Middleware

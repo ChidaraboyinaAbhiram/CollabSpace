@@ -2,6 +2,14 @@ const jwt = require('jsonwebtoken');
 const prisma = require('../config/db');
 const { memoryUsers } = require('../controllers/auth.controller');
 
+let isDbOnline = true;
+const withDbTimeout = (promise, ms = 500) => {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('DB Timeout')), ms))
+  ]);
+};
+
 /**
  * Authentication middleware to verify JWT token in Authorization header
  */
@@ -25,29 +33,36 @@ const authenticateToken = async (req, res, next) => {
 
     let user = null;
 
-    try {
-      user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          createdAt: true
-        }
-      });
-    } catch (dbErr) {
-      // Look up user in memory store if database is offline
-      if (memoryUsers) {
-        for (const memUser of memoryUsers.values()) {
-          if (memUser.id === userId) {
-            user = {
-              id: memUser.id,
-              name: memUser.name,
-              email: memUser.email,
-              createdAt: memUser.createdAt
-            };
-            break;
-          }
+    if (isDbOnline) {
+      try {
+        user = await withDbTimeout(
+          prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              createdAt: true
+            }
+          }),
+          400
+        );
+      } catch (dbErr) {
+        isDbOnline = false;
+      }
+    }
+
+    // Look up user in memory store if database is offline or user not found in DB
+    if (!user && memoryUsers) {
+      for (const memUser of memoryUsers.values()) {
+        if (memUser.id === userId) {
+          user = {
+            id: memUser.id,
+            name: memUser.name,
+            email: memUser.email,
+            createdAt: memUser.createdAt
+          };
+          break;
         }
       }
     }

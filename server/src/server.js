@@ -24,6 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 
 const authRoutes = require('./routes/auth.routes');
 const documentRoutes = require('./routes/document.routes');
+const cacheRoutes = require('./routes/cache.routes');
 
 // Health Check Endpoint (Sprint 0 Baseline)
 app.get('/api/health', (req, res) => {
@@ -39,6 +40,9 @@ app.use('/api/auth', authRoutes);
 
 // Document Management Routes (Sprint 2 & 5)
 app.use('/api/documents', documentRoutes);
+
+// Cache Monitoring & Maintenance Routes (Sprint 10)
+app.use('/api/cache', cacheRoutes);
 
 // Root fallback route
 app.get('/', (req, res) => {

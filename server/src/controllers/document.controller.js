@@ -1,5 +1,6 @@
 const prisma = require('../config/db');
 const crypto = require('crypto');
+const cacheService = require('../services/cache.service');
 
 // In-memory fallback document store for development
 const memoryDocuments = new Map();
@@ -74,6 +75,9 @@ const createDocument = async (req, res) => {
       };
       memoryDocuments.set(docId, newDoc);
     }
+
+    // Cache new document
+    await cacheService.set(`doc:${newDoc.id}`, newDoc, 3600);
 
     return res.status(201).json({
       status: 'success',
@@ -153,14 +157,36 @@ const getDocuments = async (req, res) => {
 };
 
 /**
- * Get a single document by ID
+ * Get a single document by ID (Cache-Aside Pattern)
  * GET /api/documents/:id
  */
 const getDocumentById = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user?.id || req.user?.userId;
+    const cacheKey = `doc:${id}`;
 
+    // 1. Check Redis Cache First
+    const cachedDoc = await cacheService.get(cacheKey);
+    if (cachedDoc) {
+      const isOwner = cachedDoc.ownerId === userId;
+      const isCollaborator = cachedDoc.collaborators && cachedDoc.collaborators.some(c => c.userId === userId);
+
+      if (!isOwner && !isCollaborator) {
+        return res.status(403).json({
+          status: 'error',
+          message: 'Forbidden. You do not have permission to view this document.'
+        });
+      }
+
+      return res.status(200).json({
+        status: 'success',
+        document: cachedDoc,
+        fromCache: true
+      });
+    }
+
+    // 2. Cache Miss: Query Database / Memory Store
     let doc = null;
 
     if (isDbAvailable) {
@@ -206,9 +232,13 @@ const getDocumentById = async (req, res) => {
       });
     }
 
+    // 3. Populate Redis Cache
+    await cacheService.set(cacheKey, doc, 3600);
+
     return res.status(200).json({
       status: 'success',
-      document: doc
+      document: doc,
+      fromCache: false
     });
   } catch (error) {
     console.error('Get Document By ID Error:', error);
@@ -306,6 +336,9 @@ const updateDocument = async (req, res) => {
       };
       memoryDocuments.set(id, updatedDoc);
     }
+
+    // Refresh Redis Cache
+    await cacheService.set(`doc:${id}`, updatedDoc, 3600);
 
     return res.status(200).json({
       status: 'success',
@@ -447,6 +480,9 @@ const shareDocument = async (req, res) => {
       memoryDocuments.set(id, doc);
     }
 
+    // Invalidate document cache so updated collaborator list is refreshed
+    await cacheService.del(`doc:${id}`);
+
     return res.status(200).json({
       status: 'success',
       message: `Successfully shared document with ${targetUser.name}`,
@@ -521,6 +557,8 @@ const updateCollaboratorRole = async (req, res) => {
       }
     }
 
+    await cacheService.del(`doc:${id}`);
+
     return res.status(200).json({
       status: 'success',
       message: 'Collaborator role updated',
@@ -590,6 +628,8 @@ const removeCollaborator = async (req, res) => {
       memoryDocuments.set(id, doc);
     }
 
+    await cacheService.del(`doc:${id}`);
+
     return res.status(200).json({
       status: 'success',
       message: 'Collaborator removed successfully'
@@ -651,6 +691,9 @@ const deleteDocument = async (req, res) => {
     if (!isDbAvailable) {
       memoryDocuments.delete(id);
     }
+
+    // Invalidate Cache
+    await cacheService.del(`doc:${id}`);
 
     return res.status(200).json({
       status: 'success',
