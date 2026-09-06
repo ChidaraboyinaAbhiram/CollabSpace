@@ -26,4 +26,4 @@ function TypingIndicator({ typingUsers = [] }) {
   );
 }
 
-export default TypingIndicator;
+export default React.memo(TypingIndicator);

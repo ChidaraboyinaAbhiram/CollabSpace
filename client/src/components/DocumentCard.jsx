@@ -65,4 +65,4 @@ function DocumentCard({ doc, onRequestDelete }) {
   );
 }
 
-export default DocumentCard;
+export default React.memo(DocumentCard);

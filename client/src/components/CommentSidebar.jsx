@@ -170,4 +170,4 @@ function CommentSidebar({
   );
 }
 
-export default CommentSidebar;
+export default React.memo(CommentSidebar);

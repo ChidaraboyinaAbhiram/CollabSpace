@@ -68,4 +68,4 @@ function CursorOverlay({ cursors = {}, quillRef }) {
   );
 }
 
-export default CursorOverlay;
+export default React.memo(CursorOverlay);

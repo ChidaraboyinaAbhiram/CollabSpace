@@ -202,4 +202,4 @@ function VersionHistoryDrawer({
   );
 }
 
-export default VersionHistoryDrawer;
+export default React.memo(VersionHistoryDrawer);
