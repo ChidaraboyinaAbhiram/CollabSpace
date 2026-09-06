@@ -560,10 +560,10 @@
       <div class="badge-container">
         <div class="badge badge-primary">
           <span class="pulse-indicator"></span>
-          <span>Sprint 6: Socket.IO Realtime</span>
+          <span>Sprint 7: User Presence</span>
         </div>
         <div class="badge badge-success">
-          <span>Sprint 5 Complete</span>
+          <span>Sprint 6 Complete</span>
         </div>
       </div>
     </header>
@@ -578,21 +578,21 @@
               <circle class="circle-bg" cx="70" cy="70" r="64" />
               <circle id="progressCircle" class="circle-fill" cx="70" cy="70" r="64" />
             </svg>
-            <div id="progressPercent" class="percentage-text">40.0%</div>
+            <div id="progressPercent" class="percentage-text">46.7%</div>
           </div>
           <div>
             <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; margin-bottom: 0.5rem;">Overall Project Progress</h2>
             <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
-              Sprint 5 (React State & Custom Contexts) is completed! You have built the DocumentContext provider, reusable UI kit (Button, Modal, Badge, Input, Avatar), collaborative ShareModal with RBAC controls, and backend sharing APIs.
+              Sprint 6 (Socket.IO Real-time Sync) is completed! You have built the full-duplex WebSocket pipeline, JWT handshake authentication, per-document rooms, sub-50ms Delta broadcasting, and echo-loop prevention.
             </p>
             <div class="progress-stats-grid">
               <div class="stat-box">
                 <div class="stat-label">Current Sprint</div>
-                <div class="stat-val">Sprint 6</div>
+                <div class="stat-val">Sprint 7</div>
               </div>
               <div class="stat-box">
                 <div class="stat-label">Commits</div>
-                <div id="commitCount" class="stat-val">7</div>
+                <div id="commitCount" class="stat-val">8</div>
               </div>
             </div>
           </div>
@@ -601,7 +601,7 @@
         <!-- Current Sprint Tasks -->
         <div class="card">
           <div class="tasks-header">
-            <h2>Sprint 5 Tasks Checklist (Completed)</h2>
+            <h2>Sprint 6 Tasks Checklist (Completed)</h2>
             <span style="font-size: 0.85rem; color: var(--text-muted);" id="taskRatio">4/4 Completed</span>
           </div>
           <div class="task-list">
@@ -609,29 +609,29 @@
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Create DocumentContext provider and useDocument custom hook</div>
-              <span class="task-tag tag-setup">context</span>
+              <div class="task-text">Set up Socket.IO server on backend with JWT handshake authentication</div>
+              <span class="task-tag tag-setup">socket.io</span>
             </div>
             <div class="task-item completed">
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Build reusable UI component kit (Button, Modal, Badge, Input, Avatar)</div>
-              <span class="task-tag tag-feat">ui kit</span>
+              <div class="task-text">Establish client Socket.IO connection in frontend with reconnection lifecycle</div>
+              <span class="task-tag tag-setup">client ws</span>
             </div>
             <div class="task-item completed">
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Implement collaborative ShareModal with RBAC roles (Editor vs Viewer)</div>
-              <span class="task-tag tag-feat">sharing</span>
+              <div class="task-text">Implement dynamic room joining logic (join-document per document ID)</div>
+              <span class="task-tag tag-feat">rooms</span>
             </div>
             <div class="task-item completed">
               <div class="task-checkbox">
                 <svg viewBox="0 0 24 24" style="display: block;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </div>
-              <div class="task-text">Build backend sharing endpoints (POST /share, PATCH role, DELETE)</div>
-              <span class="task-tag tag-setup">api</span>
+              <div class="task-text">Synchronize Quill Delta changes in real-time with echo-loop prevention</div>
+              <span class="task-tag tag-feat">sync</span>
             </div>
           </div>
         </div>
@@ -721,17 +721,27 @@
                 <span class="sprint-status-tag">Done</span>
               </div>
             </div>
-            <div class="sprint-node active">
-              <div class="sprint-indicator">6</div>
+            <div class="sprint-node completed">
+              <div class="sprint-indicator">✓</div>
               <div class="sprint-details">
                 <div>
                   <div class="sprint-title">Socket.IO Core</div>
-                  <div class="sprint-subtitle">Sprint 6 • Active</div>
+                  <div class="sprint-subtitle">Sprint 6 • Completed</div>
+                </div>
+                <span class="sprint-status-tag">Done</span>
+              </div>
+            </div>
+            <div class="sprint-node active">
+              <div class="sprint-indicator">7</div>
+              <div class="sprint-details">
+                <div>
+                  <div class="sprint-title">User Presence</div>
+                  <div class="sprint-subtitle">Sprint 7 • Active</div>
                 </div>
                 <span class="sprint-status-tag">Active</span>
               </div>
             </div>
-            <p style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding-top: 0.5rem;">Sprints 7–14 locked in pipeline</p>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding-top: 0.5rem;">Sprints 8–14 locked in pipeline</p>
           </div>
         </div>
 
@@ -739,12 +749,12 @@
         <div class="card">
           <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; margin-bottom: 0.75rem;">Skills Acquired</h2>
           <div class="skills-grid">
-            <div class="skill-tag">DocumentContext</div>
-            <div class="skill-tag">Custom Hooks</div>
-            <div class="skill-tag">UI Component Kit</div>
-            <div class="skill-tag">ShareModal (RBAC)</div>
-            <div class="skill-tag">Avatar Stacks</div>
-            <div class="skill-tag">Sharing Endpoints</div>
+            <div class="skill-tag">WebSockets (Socket.IO)</div>
+            <div class="skill-tag">JWT Handshake</div>
+            <div class="skill-tag">Document Rooms</div>
+            <div class="skill-tag">Delta Broadcasting</div>
+            <div class="skill-tag">Echo Prevention</div>
+            <div class="skill-tag">Multi-Client Sync</div>
           </div>
         </div>
 
@@ -752,12 +762,12 @@
         <div class="card">
           <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; margin-bottom: 1rem;">Interview Review Topics</h2>
           <div class="qa-item">
-            <div class="qa-question">Context API vs Redux/Zustand?</div>
-            <div class="qa-answer">Context is built-in and perfect for feature-scoped state (active document); Redux/Zustand use selectors to prevent large app re-renders.</div>
+            <div class="qa-question">Why WebSockets over HTTP Polling?</div>
+            <div class="qa-answer">Persistent full-duplex TCP connections eliminate HTTP header overhead and deliver sub-50ms latency for real-time collaboration.</div>
           </div>
           <div class="qa-item">
-            <div class="qa-question">Why throw errors in custom hooks?</div>
-            <div class="qa-answer">Fails fast if a component attempts to use a context hook outside its matching Provider wrapper.</div>
+            <div class="qa-question">How to prevent Echo Loops?</div>
+            <div class="qa-answer">Check source === 'user' before emitting Delta changes so remotely applied updates (source === 'api') are not re-broadcast.</div>
           </div>
         </div>
       </div>
@@ -768,8 +778,8 @@
     const TOTAL_SPRINTS = 15;
     
     function updateProgress() {
-      // 6 out of 15 Sprints fully completed = 40.0%
-      const totalProgressPercent = Math.round((6 / TOTAL_SPRINTS) * 100);
+      // 7 out of 15 Sprints fully completed = 46.7%
+      const totalProgressPercent = Math.round((7 / TOTAL_SPRINTS) * 100);
       
       document.getElementById('progressPercent').innerText = `${totalProgressPercent}%`;
       

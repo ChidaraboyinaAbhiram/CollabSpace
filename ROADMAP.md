@@ -43,11 +43,11 @@ This roadmap outlines the milestones and features we will build week-by-week.
 - [x] Build collaborative permissions menu UI (`ShareModal`)
 - [x] Implement backend sharing endpoints (`POST /share`, `PATCH role`, `DELETE`)
 
-## ⚡ Sprint 6: Socket.IO Real-time Sync (Pending)
-- [ ] Set up Socket.IO server on backend
-- [ ] Establish Socket.IO connection in frontend editor
-- [ ] Implement Room joining logic (room per document ID)
-- [ ] Synchronize editor contents in real-time between clients
+## ⚡ Sprint 6: Socket.IO Real-time Sync (Completed)
+- [x] Set up Socket.IO server on backend with JWT handshake authentication
+- [x] Establish Socket.IO connection in frontend editor with reconnection lifecycle
+- [x] Implement Room joining logic (room per document ID)
+- [x] Synchronize editor contents in real-time between clients with echo-loop prevention
 
 ## 👥 Sprint 7: User Presence System (Pending)
 - [ ] Implement online users indicator bar

@@ -1,9 +1,16 @@
 const express = require('express');
+const http = require('http');
 const cors = require('cors');
 require('dotenv').config();
 
+const { initSocket } = require('./socket/socket.server');
+
 const app = express();
+const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
+
+// Initialize Socket.IO on HTTP Server
+initSocket(server);
 
 // Enable CORS for client communication
 app.use(cors({
@@ -30,10 +37,8 @@ app.get('/api/health', (req, res) => {
 // Authentication Routes (Sprint 1)
 app.use('/api/auth', authRoutes);
 
-// Document Management Routes (Sprint 2)
+// Document Management Routes (Sprint 2 & 5)
 app.use('/api/documents', documentRoutes);
-
-
 
 // Root fallback route
 app.get('/', (req, res) => {
@@ -50,13 +55,14 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start listening for requests
-app.listen(PORT, () => {
+// Start listening for HTTP & WebSocket connections
+server.listen(PORT, () => {
   console.log(`========================================`);
-  console.log(`🚀 CollabSpace API Server started!`);
+  console.log(`🚀 CollabSpace API & Socket Server started!`);
   console.log(`📡 Port: ${PORT}`);
   console.log(`🔗 Health Check: http://localhost:${PORT}/api/health`);
+  console.log(`⚡ WebSocket URL: ws://localhost:${PORT}`);
   console.log(`========================================`);
 });
 
-module.exports = app;
+module.exports = { app, server };

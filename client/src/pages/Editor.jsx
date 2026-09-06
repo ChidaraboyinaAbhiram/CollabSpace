@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 
 import { DocumentProvider, useDocument } from '../context/DocumentContext';
+import { getSocket } from '../services/socket.service';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import Avatar from '../components/ui/Avatar';
 import ShareModal from '../components/ShareModal';
 
 function EditorInner() {
+  const { id } = useParams();
   const navigate = useNavigate();
   const {
     document: doc,
@@ -30,9 +32,76 @@ function EditorInner() {
 
   const [showIconPicker, setShowIconPicker] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [activeUsers, setActiveUsers] = useState([]);
+  const quillRef = useRef(null);
+  const socketRef = useRef(null);
+
   const availableIcons = ['📄', '📝', '💡', '🚀', '📊', '🎯', '💻', '📚', '⚡', '🛠️', '✨', '🔥'];
 
-  // Keyboard shortcut for manual save (Ctrl+S / Cmd+S)
+  // 1. Socket Lifecycle: Join Document Room & Listen for Delta Changes
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket || !id) return;
+    socketRef.current = socket;
+
+    // Join document room
+    socket.emit('join-document', id);
+
+    // Receive incoming Delta changes from other collaborators
+    const handleReceiveChanges = (delta) => {
+      if (quillRef.current) {
+        const editor = quillRef.current.getEditor();
+        editor.updateContents(delta);
+      }
+    };
+
+    // Active collaborator presence notifications
+    const handleUserJoined = (user) => {
+      setActiveUsers((prev) => {
+        if (prev.some((u) => u.id === user.id)) return prev;
+        return [...prev, user];
+      });
+    };
+
+    const handleUserLeft = ({ userId }) => {
+      setActiveUsers((prev) => prev.filter((u) => u.id !== userId));
+    };
+
+    socket.on('receive-changes', handleReceiveChanges);
+    socket.on('user-joined', handleUserJoined);
+    socket.on('user-left', handleUserLeft);
+
+    return () => {
+      socket.emit('leave-document', id);
+      socket.off('receive-changes', handleReceiveChanges);
+      socket.off('user-joined', handleUserJoined);
+      socket.off('user-left', handleUserLeft);
+    };
+  }, [id]);
+
+  // 2. Quill Text-Change Listener: Broadcast Deltas only when source is 'user'
+  useEffect(() => {
+    if (!quillRef.current) return;
+    const editor = quillRef.current.getEditor();
+
+    const handleTextChange = (delta, oldDelta, source) => {
+      if (source !== 'user') return; // Prevent echo loop
+
+      if (socketRef.current && id) {
+        socketRef.current.emit('send-changes', {
+          documentId: id,
+          delta
+        });
+      }
+    };
+
+    editor.on('text-change', handleTextChange);
+    return () => {
+      editor.off('text-change', handleTextChange);
+    };
+  }, [id]);
+
+  // 3. Keyboard Shortcut for Manual Save (Ctrl+S / Cmd+S)
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
@@ -69,7 +138,7 @@ function EditorInner() {
     return (
       <div className="min-h-screen bg-dark-900 flex flex-col items-center justify-center text-gray-400 gap-3 font-outfit">
         <div className="w-10 h-10 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
-        <span className="text-sm font-medium">Opening workspace...</span>
+        <span className="text-sm font-medium">Connecting to live workspace...</span>
       </div>
     );
   }
@@ -148,9 +217,9 @@ function EditorInner() {
           />
         </div>
 
-        {/* Right: Collaborators, Word Count, Save Status, Share Button */}
+        {/* Right: Active Users, Collaborators, Word Count, Save Status, Share Button */}
         <div className="flex items-center gap-3.5">
-          {/* Collaborator Avatars Stack */}
+          {/* Active Online Users & Collaborator Avatars Stack */}
           <div className="hidden lg:flex items-center -space-x-2">
             <Avatar name={owner.name} email={owner.email} size="sm" />
             {collaborators.slice(0, 3).map((c) => (
@@ -161,11 +230,12 @@ function EditorInner() {
                 size="sm"
               />
             ))}
-            {collaborators.length > 3 && (
-              <div className="w-7 h-7 rounded-full bg-dark-700 border-2 border-dark-900 flex items-center justify-center text-[10px] font-bold text-gray-300">
-                +{collaborators.length - 3}
+            {activeUsers.map((u) => (
+              <div key={u.id} className="relative">
+                <Avatar name={u.name} email={u.email} size="sm" />
+                <span className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-500 border border-dark-900"></span>
               </div>
-            )}
+            ))}
           </div>
 
           {/* Word Counter */}
@@ -175,7 +245,7 @@ function EditorInner() {
             <span>{chars} chars</span>
           </div>
 
-          {/* Dynamic Save Status Pill */}
+          {/* Live Status Pill */}
           <div className="flex items-center">
             {saveStatus === 'saving' && (
               <Badge variant="primary" dot>
@@ -184,7 +254,7 @@ function EditorInner() {
             )}
             {saveStatus === 'saved' && (
               <Badge variant="success">
-                ✓ Saved to Cloud
+                ✓ Live Sync
               </Badge>
             )}
             {saveStatus === 'unsaved' && (
@@ -215,6 +285,7 @@ function EditorInner() {
       <main className="flex-1 flex flex-col items-center p-4 sm:p-8">
         <div className="max-w-4xl w-full bg-dark-800/60 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-6 sm:p-10 flex-1 flex flex-col min-h-[750px]">
           <ReactQuill
+            ref={quillRef}
             theme="snow"
             value={content}
             onChange={updateContent}
